@@ -12,34 +12,11 @@ type LoginProps = {
 
 export function Login({ onNavigate }: LoginProps) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        alert(error.message);
-        return;
-      }
-
-      navigate(ROUTES.HOME);
-    } catch (err) {
-      alert('予期せぬエラーが発生しました');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen pb-20 md:pb-8 bg-background">
@@ -53,60 +30,37 @@ export function Login({ onNavigate }: LoginProps) {
             <p className="text-sm text-secondary">学内フリマアプリ</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm mb-2 text-foreground">
-                学生メールアドレス
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@student.university.ac.jp"
-                className="w-full p-3 border border-border rounded bg-card focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <p className="text-xs text-secondary mt-2">
-                ※大学発行のメールアドレスのみ使用可能です
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm mb-2 text-foreground">
-                パスワード
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full p-3 border border-border rounded bg-card focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
+          <div className="space-y-6">
             <button
-              type="submit"
-              className="w-full py-3 border-2 border-accent bg-accent text-white rounded hover:bg-[#FF7F50] transition-colors"
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                      queryParams: {
+                        hd: 'ac.jp',
+                      },
+                      redirectTo: `${window.location.origin}/auth/callback`,
+                    },
+                  });
+                  if (error) throw error;
+                } catch (err) {
+                  alert('ログインに失敗しました');
+                  console.error(err);
+                  setIsLoading(false);
+                }
+              }}
+              disabled={isLoading}
+              className="w-full py-3 border-2 border-border bg-white text-foreground rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-3"
             >
-              ログイン
+              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+              <span>Googleでログイン</span>
             </button>
-          </form>
 
-          <div className="mt-6 text-center">
-            <button className="text-sm underline text-primary hover:text-[#5A8BFF]">
-              パスワードを忘れた方
-            </button>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-border text-center">
-            <p className="text-sm mb-4 text-secondary">アカウントをお持ちでない方</p>
-            <button
-              onClick={() => onNavigate('register')}
-              className="w-full py-3 border-2 border-primary bg-card text-primary rounded hover:bg-primary hover:text-white transition-colors"
-            >
-              新規登録
-            </button>
+            <p className="text-sm text-center text-secondary">
+              ※大学発行のGoogleアカウント(@ac.jp)のみ利用可能です
+            </p>
           </div>
         </div>
 
