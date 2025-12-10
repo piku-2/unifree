@@ -1,12 +1,16 @@
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Header } from './Header';
 import { supabase } from '@/libs/supabase/client';
+import { ROUTES } from '@/config/routes';
+import { NavigateHandler } from '@/config/navigation';
 
 type RegisterProps = {
-  onNavigate: (page: string) => void;
+  onNavigate?: NavigateHandler;
 };
 
 export function Register({ onNavigate }: RegisterProps) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     department: '',
@@ -29,6 +33,12 @@ export function Register({ onNavigate }: RegisterProps) {
       return;
     }
 
+    // Domain check
+    if (!formData.email.endsWith('.ac.jp')) {
+      alert('大学発行のメールアドレス（.ac.jp）のみ登録可能です');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
@@ -48,7 +58,12 @@ export function Register({ onNavigate }: RegisterProps) {
       }
 
       alert('登録確認メールを送信しました。メールを確認してログインしてください。');
-      onNavigate('login');
+      // Per requirements: "signUp 成功後はそのまま ... /mypage へ遷移"
+      // However, typical Supabase flow requires email confirmation.
+      // If auto-confirm is OFF, they are not logged in.
+      // If we redirect to MyPage (protected), AuthGate will bounce them to Login.
+      // This is acceptable behavior for "check your email".
+      navigate(ROUTES.MYPAGE);
     } catch (err) {
       alert('エラーが発生しました');
       console.error(err);

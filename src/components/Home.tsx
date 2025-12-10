@@ -1,7 +1,8 @@
 import { Header } from './Header';
+import { NavigateHandler } from '@/config/navigation';
 
 type HomeProps = {
-  onNavigate: (page: string) => void;
+  onNavigate: NavigateHandler;
 };
 
 const categories = [
@@ -38,7 +39,7 @@ export function Home({ onNavigate }: HomeProps) {
             <div className="w-20 h-20 border border-border bg-muted rounded"></div>
           </div>
           <button 
-            onClick={() => onNavigate('event-detail')}
+            onClick={() => onNavigate('event-detail', { eventId: '1' })}
             className="w-full py-3 border-2 border-accent bg-accent text-white mt-4 rounded hover:bg-[#FF7F50] transition-colors"
           >
             詳細を見る
@@ -52,7 +53,7 @@ export function Home({ onNavigate }: HomeProps) {
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => onNavigate('items')}
+                onClick={() => onNavigate('item-list')}
                 className="border border-border p-6 bg-card hover:bg-muted hover:border-primary flex flex-col items-center gap-2 rounded-lg transition-all"
               >
                 <div className="w-16 h-16 border-2 border-primary rounded-full flex items-center justify-center text-2xl bg-info/20">
@@ -68,7 +69,7 @@ export function Home({ onNavigate }: HomeProps) {
         <section>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-primary">おすすめ出品</h3>
-            <button onClick={() => onNavigate('items')} className="text-sm text-primary hover:text-[#5A8BFF] underline">
+            <button onClick={() => onNavigate('item-list')} className="text-sm text-primary hover:text-[#5A8BFF] underline">
               すべて見る →
             </button>
           </div>
@@ -76,7 +77,7 @@ export function Home({ onNavigate }: HomeProps) {
             {recommendedItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onNavigate('item-detail')}
+                onClick={() => onNavigate('item-list')}
                 className="border border-border bg-card hover:shadow-md transition-shadow text-left rounded-lg overflow-hidden"
               >
                 <div className="w-full h-48 border-b border-border bg-muted flex items-center justify-center">

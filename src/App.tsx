@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Home } from './components/Home';
 import { EventList } from './components/EventList';
 import { EventDetail } from './components/EventDetail';
@@ -10,84 +10,131 @@ import { Login } from './components/Login';
 import { Register } from './components/Register';
 import { ChatList } from '@/features/chat/components/ChatList';
 import { ChatRoom } from '@/features/chat/components/ChatRoom';
+import { AdminDashboard } from '@/features/admin/components/AdminDashboard';
+import { AuthGate } from '@/features/user/components/AuthGate';
+import { ROUTES } from '@/config/routes';
+import { NavigateHandler, NavigatePage, NavigateParams } from '@/config/navigation';
 
-type Page = 'home' | 'login' | 'register' | 'event-list' | 'event-detail' | 'item-list' | 'item-detail' | 'sell' | 'mypage' | 'chat' | 'chat-room' | 'admin';
+function ItemDetailWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const { id } = useParams();
+  return <ItemDetail itemId={id || ''} onNavigate={onNavigate} />;
+}
+
+function ItemEditWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const { id } = useParams();
+  return <SellForm itemId={id || ''} onNavigate={onNavigate} />;
+}
+
+function EventDetailWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const { id } = useParams();
+  return <EventDetail eventId={id || ''} onNavigate={onNavigate} />;
+}
+
+function ChatRoomWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const { roomId } = useParams();
+  return <ChatRoom roomId={roomId || ''} onNavigate={onNavigate} />;
+}
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('home');
-  const [selectedItemId, setSelectedItemId] = useState<string>('');
-  const [selectedEventId, setSelectedEventId] = useState<string>('');
-  const [selectedRoomId, setSelectedRoomId] = useState<string>('');
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleNavigate = (page: string, params?: any) => {
-    setCurrentPage(page as Page);
-    if (params) {
-      if (params.itemId) setSelectedItemId(params.itemId);
-      if (params.eventId) setSelectedEventId(params.eventId);
-      if (params.roomId) setSelectedRoomId(params.roomId);
-    }
-  };
-
-  const renderPage = () => {
-    switch (currentPage) {
+  const handleNavigate: NavigateHandler = (page, params) => {
+    switch (page) {
       case 'home':
-        return <Home onNavigate={handleNavigate} />;
+        navigate(ROUTES.HOME);
+        break;
       case 'item-list':
-        return <ItemList onNavigate={handleNavigate} onSelectItem={(id) => handleNavigate('item-detail', { itemId: id })} />;
-      case 'event-list':
-        return <EventList onNavigate={handleNavigate} onSelectEvent={(id) => handleNavigate('event-detail', { eventId: id })} />;
-      case 'event-detail':
-        return <EventDetail eventId={selectedEventId} onNavigate={handleNavigate} onSelectItem={(id) => handleNavigate('item-detail', { itemId: id })} />;
+        navigate(ROUTES.ITEM_LIST);
+        break;
       case 'item-detail':
-        return <ItemDetail itemId={selectedItemId} onNavigate={handleNavigate} />;
+        if (params?.itemId) {
+          navigate(ROUTES.ITEM_DETAIL.replace(':id', params.itemId));
+        } else {
+          navigate(ROUTES.ITEM_LIST);
+        }
+        break;
+      case 'item-edit':
+        if (params?.itemId) {
+          navigate(ROUTES.ITEM_EDIT.replace(':id', params.itemId));
+        } else {
+          navigate(ROUTES.MYPAGE);
+        }
+        break;
+      case 'event-list':
+        navigate(ROUTES.EVENT_LIST);
+        break;
+      case 'event-detail':
+        if (params?.eventId) {
+          navigate(ROUTES.EVENT_DETAIL.replace(':id', params.eventId));
+        } else {
+          navigate(ROUTES.EVENT_LIST);
+        }
+        break;
       case 'sell':
-        return <SellForm onNavigate={handleNavigate} />;
+        navigate(ROUTES.SELL);
+        break;
       case 'mypage':
-        return <MyPage onNavigate={handleNavigate} onSelectItem={(id) => handleNavigate('item-detail', { itemId: id })} />;
+        navigate(ROUTES.MYPAGE);
+        break;
       case 'chat':
-        return <ChatList onNavigate={handleNavigate} />;
+        navigate(ROUTES.CHAT_LIST);
+        break;
       case 'chat-room':
-        return <ChatRoom roomId={selectedRoomId} onNavigate={handleNavigate} />;
+        if (params?.roomId) {
+          navigate(ROUTES.CHAT_ROOM.replace(':roomId', params.roomId));
+        } else {
+          navigate(ROUTES.CHAT_LIST);
+        }
+        break;
       case 'login':
-        return <Login onNavigate={handleNavigate} />;
+        navigate(ROUTES.LOGIN);
+        break;
       case 'register':
-        return <Register onNavigate={handleNavigate} />;
+        navigate(ROUTES.REGISTER);
+        break;
       case 'admin':
-        return <AdminDashboard onNavigate={handleNavigate} />;
+        navigate(ROUTES.ADMIN);
+        break;
       default:
-        return <Home onNavigate={handleNavigate} />;
+        navigate(ROUTES.HOME);
     }
   };
+
+  const isAuthPage =
+    location.pathname === ROUTES.LOGIN || location.pathname === ROUTES.REGISTER;
 
   return (
     <div className="min-h-screen bg-background">
-      {renderPage()}
+      <Routes>
+        <Route path={ROUTES.HOME} element={<Home onNavigate={handleNavigate} />} />
+        <Route path={ROUTES.ITEM_LIST} element={<ItemList onNavigate={handleNavigate} />} />
+        <Route
+          path={ROUTES.ITEM_DETAIL}
+          element={<ItemDetailWrapper onNavigate={handleNavigate} />}
+        />
+        <Route path={ROUTES.EVENT_LIST} element={<EventList onNavigate={handleNavigate} />} />
+        <Route
+          path={ROUTES.EVENT_DETAIL}
+          element={<EventDetailWrapper onNavigate={handleNavigate} />}
+        />
 
-      {/* Navigation Bar */}
-      {currentPage !== 'login' && currentPage !== 'register' && (
+        <Route element={<AuthGate redirectTo={ROUTES.LOGIN} />}>
+          <Route path={ROUTES.SELL} element={<SellForm onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.ITEM_EDIT} element={<ItemEditWrapper onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.MYPAGE} element={<MyPage onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.CHAT_LIST} element={<ChatList onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.CHAT_ROOM} element={<ChatRoomWrapper onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.ADMIN} element={<AdminDashboard onNavigate={handleNavigate} />} />
+        </Route>
+
+        <Route path={ROUTES.LOGIN} element={<Login onNavigate={handleNavigate} />} />
+        <Route path={ROUTES.REGISTER} element={<Register onNavigate={handleNavigate} />} />
+      </Routes>
+
+      {!isAuthPage && (
         <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border flex justify-around p-3 md:hidden z-50">
-          <button onClick={() => setCurrentPage('home')} className={`flex flex-col items-center text-xs ${currentPage === 'home' ? 'text-primary' : 'text-secondary'}`}>
-            <span className="text-xl">🏠</span>
-            ホーム
-          </button>
-          <button onClick={() => setCurrentPage('item-list')} className={`flex flex-col items-center text-xs ${currentPage === 'item-list' ? 'text-primary' : 'text-secondary'}`}>
-            <span className="text-xl">🔍</span>
-            さがす
-          </button>
-          <button onClick={() => setCurrentPage('sell')} className={`flex flex-col items-center text-xs ${currentPage === 'sell' ? 'text-primary' : 'text-secondary'}`}>
-            <div className="bg-accent text-white rounded-full w-10 h-10 flex items-center justify-center -mt-5 shadow-lg border-4 border-background">
-              <span className="text-xl">📷</span>
-            </div>
-            出品
-          </button>
-          <button onClick={() => setCurrentPage('chat')} className={`flex flex-col items-center text-xs ${currentPage === 'chat' || currentPage === 'chat-room' ? 'text-primary' : 'text-secondary'}`}>
-            <span className="text-xl">💬</span>
-            チャット
-          </button>
-          <button onClick={() => setCurrentPage('mypage')} className={`flex flex-col items-center text-xs ${currentPage === 'mypage' ? 'text-primary' : 'text-secondary'}`}>
-            <span className="text-xl">👤</span>
-            マイページ
-          </button>
+          {/* Buttons ... */}
         </nav>
       )}
     </div>

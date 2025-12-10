@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ItemWithUser } from '../types';
-import { getItem } from '../api/getItem';
+import { supabase } from '@/libs/supabase/client';
 
 export function useItem(itemId: string) {
   const [item, setItem] = useState<ItemWithUser | null>(null);
@@ -8,35 +8,25 @@ export function useItem(itemId: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function fetchItem() {
-      try {
-        setLoading(true);
-        const data = await getItem(itemId);
-        if (mounted) {
-          setItem(data);
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err : new Error('An error occurred'));
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    if (itemId) {
-      fetchItem();
-    } else {
+    if (!itemId) {
         setLoading(false);
+        return;
     }
 
-    return () => {
-      mounted = false;
+    const fetchItem = async () => {
+        const { data, error } = await supabase
+            .from('items')
+            .select('*, user:users(name, avatar_url, department)')
+            .eq('id', itemId)
+            .single();
+
+        if (error) throw error;
+        setItem(data as any as ItemWithUser);
     };
+
+    fetchItem()
+      .catch(err => setError(err))
+      .finally(() => setLoading(false));
   }, [itemId]);
 
   return { item, loading, error };

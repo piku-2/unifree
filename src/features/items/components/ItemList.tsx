@@ -3,26 +3,19 @@ import { Header } from '@/components/Header';
 import { useItems } from '../hooks/useItems';
 import { ItemCard } from './ItemCard';
 import { SearchBar } from './SearchBar';
+import { NavigateHandler } from '@/config/navigation';
 
 type ItemListProps = {
-  onNavigate: (page: string) => void;
-  onSelectItem: (itemId: string) => void;
+  onNavigate: NavigateHandler;
 };
 
 const categories = ['すべて', '家電', '本', '生活雑貨', '大型家具', 'その他'];
 
-export function ItemList({ onNavigate, onSelectItem }: ItemListProps) {
+export function ItemList({ onNavigate }: ItemListProps) {
   const { items, loading, error } = useItems();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('すべて');
   const [priceRange, setPriceRange] = useState([0, 50000]);
-  // showLargeOnly removed as it's not in DB schema yet, or logic needs adjustment.
-  // Should I keeping it? Original had it.
-  // I will check if 'isLarge' can be inferred or just comment it out to avoid TS errors.
-  // Task says "Sort (New/Popular dummy)". Original has sort select.
-  // I will implement client-side sort.
-
-  // Sorting state
   const [sortOrder, setSortOrder] = useState('新着順');
 
   const filteredItems = items.filter(item => {
@@ -126,10 +119,11 @@ export function ItemList({ onNavigate, onSelectItem }: ItemListProps) {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredItems.map((item) => (
-                    <ItemCard key={item.id} item={item} onClick={() => {
-                        onSelectItem(item.id);
-                        onNavigate('item-detail');
-                    }} />
+                    <ItemCard
+                      key={item.id}
+                      item={item}
+                      onClick={() => onNavigate('item-detail', { itemId: item.id })}
+                    />
                 ))}
                 </div>
             )}

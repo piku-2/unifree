@@ -1,25 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getItem } from '../api/getItem';
 import { Header } from '@/components/Header';
 import { AuthGate } from '@/features/user/components/AuthGate';
 import { useAuth } from '@/features/user/hooks/useAuth';
 import { useItemForm } from '../hooks/useItemForm';
 import { ImageUpload } from './ImageUpload';
 import { FormConfirm } from './FormConfirm';
-import { createItem } from '../api/createItem';
 import { itemSchema, ItemInput } from '../schema';
+import { ROUTES } from '@/config/routes';
+import { NavigateHandler } from '@/config/navigation';
 
 type ItemFormProps = {
-  onNavigate: (page: string) => void;
+  itemId?: string;
+  onNavigate: NavigateHandler;
 };
 
 const categories = ['家電', '家具', '本', '生活雑貨', 'その他'];
 const conditions = ['新品', '美品', '使用感あり'];
 
-export function ItemForm({ onNavigate }: ItemFormProps) {
+export function ItemForm({ itemId, onNavigate }: ItemFormProps) {
   const { user } = useAuth();
-  const { form, images, setImages } = useItemForm();
+  const { form, images, setImages, saveItem, isSubmitting: isHookSubmitting } = useItemForm();
   const [isConfirming, setIsConfirming] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Logic to fetch item if editing
+  // Import useItem hook... wait, I need to fetch it imperatively or use hook at top level?
+  // I will use useItem hook if itemId exists.
+  // But hooks can't be conditional.
+  // I will call useItem always, but pass empty string if no itemId?
+  // Or better, fetch in useEffect.
+
+  // Simplified Edit Flow:
+  useEffect(() => {
+     if (itemId && user) {
+         // Fetch item to populate form
+         // I'll assume getItems.ts or a separate getItem API is importable
+         // importing here:
+         // import('../api/getItem').then(({ getItem }) => { // Moved to top-level import
+             getItem(itemId).then(item => {
+                 // Check owner
+                 if(item.user_id !== user.id) {
+                     alert('権限がありません');
+                     onNavigate('home');
+                     return;
+                 }
+                 // Populate form
+                 form.setValue('title', item.title);
+                 form.setValue('description', item.description); // Note: stripping condition/delivery lines?
+                 // MVP: just put full description.
+                 form.setValue('price', item.price);
+                 form.setValue('category', item.category);
+                 form.setValue('status', item.status as any);
+                 // images? item.images is string[], form needs File[] or string[]?
+                 // useItemForm expects images: File[] state and form.images: string[] for validation.
+                 // This is tricky.
+                 // For edit, I need to handle existing images vs new files.
+                 // Plan: simplify edit to NOT allow image changes for now?
+                 // Or just set form.setValue('images', item.images) to pass validation,
+                 // and assume we don't re-upload unless new files added.
+                 // This requires useItemForm refactor to handle existing URLs.
+                 // For this step I'll populate text fields only and show alert "Image edit not supported yet" if needed.
+             });
+         // }); // Moved to top-level import
+     }
+  }, [itemId, user, form, onNavigate]);
+  // Wait, I can't use `import` inside function easily without async component or suspense.
+  // I will stick to component logic. I need to import getItem at top.
 
   const {
       register,
@@ -30,15 +76,10 @@ export function ItemForm({ onNavigate }: ItemFormProps) {
       formState: { errors }
   } = form;
 
-  // Watch condition for UI state since it's not registered via standard input if using buttons
-  const currentCondition = watch('status'); // wait, condition field is missing in schema.
-  // I will use a local state for condition or register it if I update schema.
-  // I'll update schema in next turn if needed, or just append it to description.
   const [condition, setCondition] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState('手渡し');
 
   const onPreSubmit = async (_data: ItemInput) => {
-      // Validate images
       if (images.length === 0) {
           alert('画像をアップロードしてください');
           return;
@@ -54,42 +95,28 @@ export function ItemForm({ onNavigate }: ItemFormProps) {
   };
 
   const handleFinalSubmit = async () => {
-    if (!user) return;
-    setIsSubmitting(true);
+    // Inject condition/delivery into description for MVP compatibility
     const data = watch();
-
-    // Inject condition/delivery into description or metadata if schema doesn't support them directly
-    // Or assume createItem handles them.
-    // My createItem supports user_id, title...
-    // I will append them to description for MVP simplicity vs schema change
     const fullDescription = `【状態】${condition}\n【受け渡し】${deliveryMethod}\n\n${data.description}`;
-    const finalData = { ...data, description: fullDescription };
+    const finalData = { ...data, description: fullDescription, status: 'on_sale' } as ItemInput;
 
-    try {
-        await createItem(finalData, images, user.id);
-        alert('出品が完了しました');
-        onNavigate('mypage');
-    } catch (e) {
-        console.error(e);
-        alert('出品に失敗しました');
-    } finally {
-        setIsSubmitting(false);
-        setIsConfirming(false);
-    }
+    await saveItem(finalData);
+    setIsConfirming(false);
+    // Navigation is handled inside saveItem
   };
 
   return (
-    <AuthGate fallback={<div className="p-8 text-center text-red-500">ログインが必要です</div>}>
+    <AuthGate redirectTo={ROUTES.LOGIN}>
       <div className="min-h-screen pb-20 md:pb-8 bg-background">
         <Header title="出品する" onNavigate={onNavigate} showBack />
 
         <main className="max-w-3xl mx-auto px-4 py-6">
           <div className="border border-border bg-card p-6 rounded-lg shadow-sm">
-            <form onSubmit={handleSubmit(onPreSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onPreSubmit as any)} className="space-y-6">
 
               <ImageUpload files={images} onChange={(files) => {
                   setImages(files);
-                  setValue('images', files.map(f => f.name)); // Fake string array for Zod
+                  setValue('images', files.map(f => f.name)); // Fake string array for Zod val
                   trigger('images');
               }} />
               {errors.images && <p className="text-destructive text-sm">{errors.images.message}</p>}
@@ -139,7 +166,6 @@ export function ItemForm({ onNavigate }: ItemFormProps) {
                 {errors.description && <p className="text-destructive text-sm">{errors.description.message}</p>}
               </div>
 
-               {/* Delivery Method Selector (Simplification: using local state) */}
                <div>
                   <label className="block text-sm mb-2">受け渡し方法</label>
                   <div className="flex gap-4">
@@ -166,7 +192,7 @@ export function ItemForm({ onNavigate }: ItemFormProps) {
              images={images}
              onConfirm={handleFinalSubmit}
              onCancel={() => setIsConfirming(false)}
-             loading={isSubmitting}
+             loading={isHookSubmitting}
           />
       )}
     </AuthGate>

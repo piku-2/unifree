@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Header } from './Header';
+import { NavigateHandler } from '@/config/navigation';
 
 type ItemDetailProps = {
   itemId: string;
-  onNavigate: (page: string) => void;
+  onNavigate: NavigateHandler;
 };
 
 const itemDetails = {

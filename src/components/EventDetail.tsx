@@ -1,9 +1,9 @@
 import { Header } from './Header';
+import { NavigateHandler } from '@/config/navigation';
 
 type EventDetailProps = {
   eventId: string;
-  onNavigate: (page: string) => void;
-  onSelectItem: (itemId: string) => void;
+  onNavigate: NavigateHandler;
 };
 
 const eventDetails = {
@@ -30,12 +30,11 @@ const eventDetails = {
   },
 };
 
-export function EventDetail({ eventId, onNavigate, onSelectItem }: EventDetailProps) {
+export function EventDetail({ eventId, onNavigate }: EventDetailProps) {
   const event = eventDetails[eventId as keyof typeof eventDetails] || eventDetails['1'];
 
   const handleItemClick = (itemId: string) => {
-    onSelectItem(itemId);
-    onNavigate('item-detail');
+    onNavigate('item-detail', { itemId });
   };
 
   return (

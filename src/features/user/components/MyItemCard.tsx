@@ -1,4 +1,4 @@
-import { Item } from '../types';
+import { Item } from '@/features/items/types';
 
 type MyItemCardProps = {
   item: Item;
