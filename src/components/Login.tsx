@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Header } from './Header';
+import { supabase } from '@/libs/supabase/client';
 
 type LoginProps = {
   onNavigate: (page: string) => void;
@@ -9,16 +10,36 @@ export function Login({ onNavigate }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('ログインしました');
-    onNavigate('home');
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      onNavigate('home');
+    } catch (err) {
+      alert('予期せぬエラーが発生しました');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen pb-20 md:pb-8 bg-background">
       <Header title="ログイン" onNavigate={onNavigate} showBack />
-      
+
       <main className="max-w-md mx-auto px-4 py-12">
         <div className="border border-border bg-card p-8 rounded-lg shadow-sm">
           <div className="text-center mb-8">
