@@ -7,7 +7,7 @@ export const sendMessage = async (roomId: string, senderId: string, content: str
       room_id: roomId,
       sender_id: senderId,
       content,
-    });
+    } as any);
 
   if (error) {
     throw error;
@@ -16,6 +16,7 @@ export const sendMessage = async (roomId: string, senderId: string, content: str
   // Update room updated_at
   await supabase
     .from('chat_rooms')
-    .update({ updated_at: new Date().toISOString() })
+    // @ts-ignore
+    .update({ updated_at: new Date().toISOString() } as any)
     .eq('id', roomId);
 };

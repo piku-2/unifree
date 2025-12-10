@@ -1,12 +1,14 @@
 import { ReactNode } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { Navigate, Outlet } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 
 type AuthGateProps = {
-  children: ReactNode;
-  fallback: ReactNode; // Force fallback to handle redirect or login prompt explicitly
+  children?: ReactNode;
+  redirectTo?: string;
 };
 
-export function AuthGate({ children, fallback }: AuthGateProps) {
+export function AuthGate({ children, redirectTo = ROUTES.LOGIN }: AuthGateProps) {
   const { session, loading } = useAuth();
 
   if (loading) {
@@ -18,8 +20,8 @@ export function AuthGate({ children, fallback }: AuthGateProps) {
   }
 
   if (!session) {
-    return <>{fallback}</>;
+    return <Navigate to={redirectTo} replace />;
   }
 
-  return <>{children}</>;
+  return children ? <>{children}</> : <Outlet />;
 }

@@ -16,7 +16,7 @@ export const createChatRoom = async (itemId: string, buyerId: string, sellerId: 
   }
 
   if (existingRooms && existingRooms.length > 0) {
-    return existingRooms[0].id;
+    return (existingRooms[0] as { id: string }).id;
   }
 
   // 2. Create new room
@@ -26,7 +26,7 @@ export const createChatRoom = async (itemId: string, buyerId: string, sellerId: 
       item_id: itemId,
       buyer_id: buyerId,
       seller_id: sellerId,
-    })
+    } as any)
     .select('id')
     .single();
 
@@ -34,5 +34,9 @@ export const createChatRoom = async (itemId: string, buyerId: string, sellerId: 
     throw createError;
   }
 
-  return newRoom.id;
+  if (!newRoom) {
+    throw new Error('Failed to create chat room');
+  }
+
+  return (newRoom as { id: string }).id;
 };

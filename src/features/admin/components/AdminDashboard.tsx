@@ -4,9 +4,10 @@ import { useAuth } from '@/features/user/hooks/useAuth';
 import { getItems } from '@/features/items/api/getItems';
 import { deleteItem } from '@/features/items/api/deleteItem';
 import { Item } from '@/features/items/types';
+import { NavigateHandler } from '@/config/navigation';
 
 type AdminDashboardProps = {
-  onNavigate: (page: string) => void;
+  onNavigate: NavigateHandler;
 };
 
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
@@ -82,7 +83,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                             <tr key={item.id} className="border-t border-border hover:bg-muted/50">
                                 <td className="p-3 text-xs font-mono">{item.id.slice(0, 8)}...</td>
                                 <td className="p-3">{item.title}</td>
-                                <td className="p-3">{item.user?.name || 'Unknown'}</td>
+                                <td className="p-3">{(item as any).user?.name || item.user_id}</td>
                                 <td className="p-3">{item.status}</td>
                                 <td className="p-3">
                                     <button

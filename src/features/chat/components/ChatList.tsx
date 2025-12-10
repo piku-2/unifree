@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { getChatRooms } from '../api/getChatRooms';
 import { useAuth } from '@/features/user/hooks/useAuth';
+import { supabase } from '@/libs/supabase/client';
+import { NavigateHandler } from '@/config/navigation';
 
 type ChatListProps = {
-  onNavigate: (page: string, params?: any) => void;
+  onNavigate: NavigateHandler;
 };
 
 export function ChatList({ onNavigate }: ChatListProps) {
@@ -12,14 +14,41 @@ export function ChatList({ onNavigate }: ChatListProps) {
   const [rooms, setRooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ... (useEffect follows)
+
   useEffect(() => {
-    if (user) {
-      getChatRooms(user.id).then(data => {
-        setRooms(data);
-        setLoading(false);
-      });
-    }
+    if (!user) return;
+
+    // Initial fetch
+    getChatRooms(user.id).then(data => {
+      setRooms(data);
+      setLoading(false);
+    });
+
+    // Subscribe to chat_rooms changes
+    // We need two subscriptions or one global for the table and filter?
+    // Filter `buyer_id=eq.${user.id}` and `seller_id=eq.${user.id}`
+    const channel = supabase
+      .channel(`chat_list:${user.id}`)
+      .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'chat_rooms', filter: `buyer_id=eq.${user.id}` },
+          () => refreshRooms()
+      )
+      .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'chat_rooms', filter: `seller_id=eq.${user.id}` },
+          () => refreshRooms()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
+
+  const refreshRooms = () => {
+      if(!user) return;
+      getChatRooms(user.id).then(setRooms);
+  };
 
   const handleRoomClick = (roomId: string) => {
     onNavigate('chat-room', { roomId });

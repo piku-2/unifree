@@ -1,6 +1,8 @@
+import { NavigateHandler } from '@/config/navigation';
+
 type HeaderProps = {
   title: string;
-  onNavigate: (page: string) => void;
+  onNavigate: NavigateHandler;
   showBack?: boolean;
 };
 

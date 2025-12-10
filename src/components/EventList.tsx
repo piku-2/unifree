@@ -1,8 +1,8 @@
 import { Header } from './Header';
+import { NavigateHandler } from '@/config/navigation';
 
 type EventListProps = {
-  onNavigate: (page: string) => void;
-  onSelectEvent: (eventId: string) => void;
+  onNavigate: NavigateHandler;
 };
 
 const events = [
@@ -38,10 +38,9 @@ const events = [
   },
 ];
 
-export function EventList({ onNavigate, onSelectEvent }: EventListProps) {
+export function EventList({ onNavigate }: EventListProps) {
   const handleEventClick = (eventId: string) => {
-    onSelectEvent(eventId);
-    onNavigate('event-detail');
+    onNavigate('event-detail', { eventId });
   };
 
   return (

@@ -1,14 +1,15 @@
 export const ROUTES = {
   HOME: '/',
-  ITEM_DETAIL: (id: string) => `/items/${id}`, // Adjusted based on standard patterns, will verify
+  LOGIN: '/login',
+  REGISTER: '/register',
+  ITEM_LIST: '/items',
+  ITEM_DETAIL: '/items/:id',
+  ITEM_EDIT: '/items/:id/edit',
+  EVENT_LIST: '/events',
+  EVENT_DETAIL: '/events/:id',
   SELL: '/sell',
   MYPAGE: '/mypage',
   CHAT_LIST: '/chat',
-  CHAT_ROOM: (roomId: string) => `/chat/${roomId}`,
-  ADMIN: {
-    DASHBOARD: '/admin',
-    ITEMS: '/admin/items',
-    ORDERS: '/admin/orders',
-  },
-  LOGIN: '/login',
+  CHAT_ROOM: '/chat/:roomId',
+  ADMIN: '/admin',
 } as const;

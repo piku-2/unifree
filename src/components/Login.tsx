@@ -1,12 +1,17 @@
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Header } from './Header';
 import { supabase } from '@/libs/supabase/client';
+import { ROUTES } from '@/config/routes';
+import { NavigateHandler } from '@/config/navigation';
 
 type LoginProps = {
-  onNavigate: (page: string) => void;
+  // onNavigate preserved for backward compat if needed, but we use router mainly
+  onNavigate?: NavigateHandler;
 };
 
 export function Login({ onNavigate }: LoginProps) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -27,7 +32,7 @@ export function Login({ onNavigate }: LoginProps) {
         return;
       }
 
-      onNavigate('home');
+      navigate(ROUTES.HOME);
     } catch (err) {
       alert('予期せぬエラーが発生しました');
       console.error(err);

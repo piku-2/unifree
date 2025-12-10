@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Header } from './Header';
+import { NavigateHandler } from '@/config/navigation';
 
 type SellFormProps = {
-  onNavigate: (page: string) => void;
+  onNavigate: NavigateHandler;
 };
 
 const events = [
