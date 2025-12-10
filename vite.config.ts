@@ -4,6 +4,7 @@
   import path from 'path';
 
   export default defineConfig({
+    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
     plugins: [react()],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],

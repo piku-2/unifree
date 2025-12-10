@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Header } from './Header';
+import { supabase } from '@/libs/supabase/client';
 
 type RegisterProps = {
   onNavigate: (page: string) => void;
@@ -15,7 +16,9 @@ export function Register({ onNavigate }: RegisterProps) {
     agreedToTerms: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       alert('パスワードが一致しません');
@@ -25,14 +28,39 @@ export function Register({ onNavigate }: RegisterProps) {
       alert('利用規約に同意してください');
       return;
     }
-    alert('登録が完了しました');
-    onNavigate('home');
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+            department: formData.department,
+          },
+        },
+      });
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      alert('登録確認メールを送信しました。メールを確認してログインしてください。');
+      onNavigate('login');
+    } catch (err) {
+      alert('エラーが発生しました');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen pb-20 md:pb-8 bg-background">
       <Header title="新規登録" onNavigate={onNavigate} showBack />
-      
+
       <main className="max-w-md mx-auto px-4 py-12">
         <div className="border border-border bg-card p-8 rounded-lg shadow-sm">
           <div className="text-center mb-8">
