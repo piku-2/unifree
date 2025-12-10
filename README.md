@@ -1,11 +1,47 @@
+# Campus Flea Market App
 
-  # フリマアプリ_UI
+学生向けの軽量フリマアプリ。
+商品一覧 → 詳細 → メッセージによる購入相談 → 取引成立 までを提供。
 
-  This is a code bundle for フリマアプリ_UI. The original project is available at https://www.figma.com/design/LGcqoPpl2CGu5OAmzQOJLv/%E3%83%95%E3%83%AA%E3%83%9E%E3%82%A2%E3%83%97%E3%83%AA_UI.
+## Features
 
-  ## Running the code
+- 出品と購入が可能
+- 画像複数枚アップロード
+- チャット式の購入相談
+- マイページで出品管理
 
-  Run `npm i` to install the dependencies.
+---
 
-  Run `npm run dev` to start the development server.
-  
+## Tech Stack
+
+- Vite + React + TypeScript
+- shadcn/ui + Tailwind CSS
+- Supabase（Auth / DB / Storage）
+
+---
+
+## Scripts
+
+npm install
+npm run dev
+npm run build
+
+---
+
+## Directory Overview
+
+src/features/items
+src/features/messages
+src/features/user
+src/components/ui
+src/components/common
+src/libs
+src/config
+
+---
+
+## Goals
+
+- 学生でも迷わない最小 UX
+- コードの責務分離（UI / feature / api）
+- Supabase を最大限活用する構成

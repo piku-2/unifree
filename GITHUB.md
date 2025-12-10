@@ -63,10 +63,10 @@ git add .
 git commit -m "feat: Implement image preview on item upload"
 ```
 
-### 5.4 リモートへ push（初回のみ -u をつける）
+### 5.4 リモートへ push
 
 ```sh
-git push -u origin feature/your-branch
+git push
 ```
 
 ---
@@ -98,7 +98,7 @@ git pull origin main
 feature ブランチを最新に追従させる：
 
 ```sh
-git checkout feature/your-branch
+git checkout develop/your-branch
 git merge main
 ```
 
