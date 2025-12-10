@@ -1,0 +1,1 @@
+import{s as i}from"./index-D76jMUFL.js";const m=async r=>{const{data:s,error:t}=await i.from("likes").select("item:items(*)").eq("user_id",r);if(t)throw t;return s.map(e=>e.item).filter(e=>e!==null)};export{m as getLikedItems};
