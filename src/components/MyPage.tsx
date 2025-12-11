@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Header } from './Header';
 import { useAuth } from '@/features/user/hooks/useAuth';
+import { useProfileImage } from '@/features/user/hooks/useProfileImage';
 import { useMyItems } from '@/features/items/hooks/useMyItems';
 import { MyItemList } from '@/features/user/components/MyItemList';
 import { NavigateHandler } from '@/config/navigation';
@@ -22,6 +23,7 @@ export function MyPage({ onNavigate }: MyPageProps) {
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadProfileImage } = useProfileImage();
 
   useEffect(() => {
     if (activeTab === 'favorites' && user) {
@@ -53,27 +55,10 @@ export function MyPage({ onNavigate }: MyPageProps) {
     if (!user) return;
 
     try {
-      // Create a File object from the Blob
-      const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+      await uploadProfileImage(user.id, blob);
 
-      // Upload to Supabase using existing uploadImage util (stores in 'items' bucket generally, but 'avatars' is better if granular,
-      // but let's reuse 'items' bucket or create a dedicated path since we have a generic uploadImage)
-      // Actually uploadImage uses `${userId}/${uuid}` so it's safe collision-wise.
-      // We might want to organize it better later but this works.
-      const publicUrl = await uploadImage(file, user.id);
-
-      // Update User Metadata
-      const { error } = await supabase.auth.updateUser({
-        data: { avatar_url: publicUrl }
-      });
-
-      if (error) throw error;
-
-      // Force reload or update local state (useAuth might update automatically if it subscribes?)
-      // useAuth subscribes to onAuthStateChange so it should reflect automatically eventually,
-      // but let's reload to be sure the UI catches the new avatar immediately if subscription is slow
+      // Force reload to update UI
       window.location.reload();
-
     } catch (error) {
       console.error('Error updating avatar:', error);
       alert('プロフィール画像の更新に失敗しました');

@@ -25,26 +25,9 @@ export function Home({ onNavigate }: HomeProps) {
   return (
     <div className="min-h-screen pb-20 md:pb-8 bg-background">
       <Header title="ユニフリ" onNavigate={onNavigate} />
-      
+
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-8">
-        {/* Next Event Highlight */}
-        <section className="border border-border p-6 bg-card rounded-lg shadow-sm">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <p className="text-xs mb-2 text-secondary uppercase tracking-wide">NEXT EVENT</p>
-              <h2 className="text-2xl mb-2 text-primary">春学期フリマ 2025</h2>
-              <p className="text-sm text-foreground">2025年4月15日（火）10:00-16:00</p>
-              <p className="text-sm text-foreground">場所：第一体育館</p>
-            </div>
-            <div className="w-20 h-20 border border-border bg-muted rounded"></div>
-          </div>
-          <button 
-            onClick={() => onNavigate('event-detail', { eventId: '1' })}
-            className="w-full py-3 border-2 border-accent bg-accent text-white mt-4 rounded hover:bg-[#FF7F50] transition-colors"
-          >
-            詳細を見る
-          </button>
-        </section>
+
 
         {/* Categories */}
         <section>

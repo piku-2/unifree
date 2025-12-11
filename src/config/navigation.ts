@@ -1,6 +1,5 @@
 export type NavigateParams = {
   itemId?: string;
-  eventId?: string;
   roomId?: string;
 };
 
@@ -9,8 +8,6 @@ export type NavigatePage =
   | 'item-list'
   | 'item-detail'
   | 'item-edit'
-  | 'event-list'
-  | 'event-detail'
   | 'sell'
   | 'mypage'
   | 'chat'
