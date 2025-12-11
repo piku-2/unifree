@@ -1,0 +1,56 @@
+# ============================
+# Core
+# ============================
+node_modules/
+.next/
+dist/
+out/
+build/
+.cache/
+.vite/
+.vitest/
+
+# ============================
+# Environment & Secrets
+# ============================
+.env
+.env*.local
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+supabase/.logs/
+supabase/migrations/.temp/
+
+# ============================
+# OS-specific junk files
+# ============================
+.DS_Store
+Thumbs.db
+
+# ============================
+# TypeScript
+# ============================
+*.tsbuildinfo
+
+# ============================
+# Logs
+# ============================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun-debug.log*
+
+# ============================
+# Editor / IDE
+# ============================
+.vscode/
+.idea/
+*.swp
+
+# ============================
+# Next.js specific
+# ============================
+.next/
+.vercel/
