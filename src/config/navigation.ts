@@ -14,6 +14,8 @@ export type NavigatePage =
   | 'chat-room'
   | 'login'
   | 'register'
-  | 'admin';
+  | 'admin'
+  | 'admin-items'
+  | 'admin-orders';
 
 export type NavigateHandler = (page: NavigatePage, params?: NavigateParams) => void;
