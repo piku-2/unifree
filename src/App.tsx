@@ -1,13 +1,10 @@
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Home } from './components/Home';
-import { EventList } from './components/EventList';
-import { EventDetail } from './components/EventDetail';
 import { ItemList } from '@/features/items/components/ItemList';
 import { ItemDetail } from '@/features/items/components/ItemDetail';
 import { ItemForm as SellForm } from '@/features/items/components/ItemForm';
 import { MyPage } from './components/MyPage';
 import { Login } from './components/Login';
-import { Register } from './components/Register';
 import { ChatList } from '@/features/chat/components/ChatList';
 import { ChatRoom } from '@/features/chat/components/ChatRoom';
 import { AdminDashboard } from '@/features/admin/components/AdminDashboard';
@@ -25,10 +22,7 @@ function ItemEditWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
   return <SellForm itemId={id || ''} onNavigate={onNavigate} />;
 }
 
-function EventDetailWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
-  const { id } = useParams();
-  return <EventDetail eventId={id || ''} onNavigate={onNavigate} />;
-}
+
 
 function ChatRoomWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
   const { roomId } = useParams();
@@ -61,16 +55,7 @@ export default function App() {
           navigate(ROUTES.MYPAGE);
         }
         break;
-      case 'event-list':
-        navigate(ROUTES.EVENT_LIST);
-        break;
-      case 'event-detail':
-        if (params?.eventId) {
-          navigate(ROUTES.EVENT_DETAIL.replace(':id', params.eventId));
-        } else {
-          navigate(ROUTES.EVENT_LIST);
-        }
-        break;
+
       case 'sell':
         navigate(ROUTES.SELL);
         break;
@@ -113,11 +98,7 @@ export default function App() {
           path={ROUTES.ITEM_DETAIL}
           element={<ItemDetailWrapper onNavigate={handleNavigate} />}
         />
-        <Route path={ROUTES.EVENT_LIST} element={<EventList onNavigate={handleNavigate} />} />
-        <Route
-          path={ROUTES.EVENT_DETAIL}
-          element={<EventDetailWrapper onNavigate={handleNavigate} />}
-        />
+
 
         <Route element={<AuthGate redirectTo={ROUTES.LOGIN} />}>
           <Route path={ROUTES.SELL} element={<SellForm onNavigate={handleNavigate} />} />
@@ -129,7 +110,7 @@ export default function App() {
         </Route>
 
         <Route path={ROUTES.LOGIN} element={<Login onNavigate={handleNavigate} />} />
-        <Route path={ROUTES.REGISTER} element={<Register onNavigate={handleNavigate} />} />
+        <Route path={ROUTES.REGISTER} element={<Login onNavigate={handleNavigate} />} />
       </Routes>
 
       {!isAuthPage && (

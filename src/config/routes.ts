@@ -5,8 +5,6 @@ export const ROUTES = {
   ITEM_LIST: '/items',
   ITEM_DETAIL: '/items/:id',
   ITEM_EDIT: '/items/:id/edit',
-  EVENT_LIST: '/events',
-  EVENT_DETAIL: '/events/:id',
   SELL: '/sell',
   MYPAGE: '/mypage',
   CHAT_LIST: '/chat',

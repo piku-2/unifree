@@ -46,7 +46,8 @@ export function useItemForm() {
       await createItem({
         ...data,
         images: imageUrls,
-      }, user.id);
+        user_id: user.id
+      });
 
       alert('出品しました！');
       navigate(ROUTES.HOME);

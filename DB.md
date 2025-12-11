@@ -38,36 +38,35 @@ VITE_SUPABASE_ANON_KEY=あなたのanon publicキー
 -- create extension if not exists "pgcrypto";
 
 -----------------------------------------
--- 1. Users テーブル (public config)
+-- 1. Profiles テーブル (public.profiles)
 -----------------------------------------
+-- Public access profile table (Syncs with auth.users via trigger)
 
--- auth.users の変更をトリガーして自動同期する設定
-create table public.users (
-  id uuid not null references auth.users on delete cascade,
-  name text,
+create table public.profiles (
+  id uuid not null references auth.users on delete cascade primary key,
+  username text,
   avatar_url text,
-  department text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  primary key (id)
+  university_email text,
+  updated_at timestamp with time zone default timezone('utc'::text, now())
 );
 
-alter table public.users enable row level security;
+alter table public.profiles enable row level security;
 
-create policy "Public profiles are viewable by everyone." on public.users
+create policy "Public profiles are viewable by everyone." on public.profiles
   for select using (true);
 
-create policy "Users can insert their own profile." on public.users
+create policy "Users can insert their own profile." on public.profiles
   for insert with check (auth.uid() = id);
 
-create policy "Users can update own profile." on public.users
+create policy "Users can update own profile." on public.profiles
   for update using (auth.uid() = id);
 
--- auth.users の新規登録時に public.users を自動作成するトリガー
+-- Trigger to create profile on signup
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.users (id, name, department)
-  values (new.id, new.raw_user_meta_data->>'name', new.raw_user_meta_data->>'department');
+  insert into public.profiles (id, university_email)
+  values (new.id, new.email);
   return new;
 end;
 $$ language plpgsql security definer;
@@ -75,6 +74,12 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+
+-----------------------------------------
+-- 1a. Users テーブル (Legacy - Consider migrating to profiles)
+-----------------------------------------
+
 
 
 -----------------------------------------
@@ -204,6 +209,41 @@ create policy "Public Access" on storage.objects
 
 create policy "Authenticated Insert" on storage.objects
   for insert with check ( bucket_id = 'items' and auth.role() = 'authenticated' );
+
+-- Avatars Bucket
+insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true);
+
+create policy "Avatar Public Access" on storage.objects
+  for select using ( bucket_id = 'avatars' );
+
+create policy "Avatar Authenticated Upload" on storage.objects
+  for insert with check ( bucket_id = 'avatars' and auth.role() = 'authenticated' );
+
+create policy "Avatar Owner Update" on storage.objects
+  for update using ( bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1] );
+
+-----------------------------------------
+-- 5. Likes テーブル (お気に入り)
+-----------------------------------------
+
+create table public.likes (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.users(id) not null,
+  item_id uuid references public.items(id) not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique(user_id, item_id)
+);
+
+alter table public.likes enable row level security;
+
+create policy "Users can view their own likes." on public.likes
+  for select using (auth.uid() = user_id);
+
+create policy "Users can create their own likes." on public.likes
+  for insert with check (auth.uid() = user_id);
+
+create policy "Users can delete their own likes." on public.likes
+  for delete using (auth.uid() = user_id);
 ```
 
 ````
