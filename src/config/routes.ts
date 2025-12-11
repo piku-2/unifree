@@ -10,4 +10,6 @@ export const ROUTES = {
   CHAT_LIST: '/chat',
   CHAT_ROOM: '/chat/:roomId',
   ADMIN: '/admin',
+  ADMIN_ITEMS: '/admin/items',
+  ADMIN_ORDERS: '/admin/orders',
 } as const;

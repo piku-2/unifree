@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+'use client';
+
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/libs/supabase/client';
-import { useAuthContext } from '../providers/AuthProvider';
 
-type FallbackAuthState = {
+type AuthContextValue = {
   user: User | null;
   loading: boolean;
   error: Error | null;
@@ -11,7 +12,13 @@ type FallbackAuthState = {
   refreshUser: () => Promise<void>;
 };
 
-function useAuthFallback(): FallbackAuthState {
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+type AuthProviderProps = {
+  children: ReactNode;
+};
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -62,11 +69,21 @@ function useAuthFallback(): FallbackAuthState {
     }
   };
 
-  return { user, loading, error, signOut, refreshUser };
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      error,
+      signOut,
+      refreshUser,
+    }),
+    [user, loading, error],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  const ctx = useAuthContext();
-  if (ctx) return ctx;
-  return useAuthFallback();
+export function useAuthContext() {
+  const ctx = useContext(AuthContext);
+  return ctx;
 }

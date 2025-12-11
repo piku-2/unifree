@@ -8,6 +8,8 @@ import { Login } from './components/Login';
 import { ChatList } from '@/features/chat/components/ChatList';
 import { ChatRoom } from '@/features/chat/components/ChatRoom';
 import { AdminDashboard } from '@/features/admin/components/AdminDashboard';
+import { AdminItemsPage } from '@/features/admin/components/AdminItemsPage';
+import { AdminOrdersPage } from '@/features/admin/components/AdminOrdersPage';
 import { AuthGate } from '@/features/user/components/AuthGate';
 import { ROUTES } from '@/config/routes';
 import { NavigateHandler, NavigatePage, NavigateParams } from '@/config/navigation';
@@ -81,6 +83,12 @@ export default function App() {
       case 'admin':
         navigate(ROUTES.ADMIN);
         break;
+      case 'admin-items':
+        navigate(ROUTES.ADMIN_ITEMS);
+        break;
+      case 'admin-orders':
+        navigate(ROUTES.ADMIN_ORDERS);
+        break;
       default:
         navigate(ROUTES.HOME);
     }
@@ -107,6 +115,8 @@ export default function App() {
           <Route path={ROUTES.CHAT_LIST} element={<ChatList onNavigate={handleNavigate} />} />
           <Route path={ROUTES.CHAT_ROOM} element={<ChatRoomWrapper onNavigate={handleNavigate} />} />
           <Route path={ROUTES.ADMIN} element={<AdminDashboard onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.ADMIN_ITEMS} element={<AdminItemsPage onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.ADMIN_ORDERS} element={<AdminOrdersPage onNavigate={handleNavigate} />} />
         </Route>
 
         <Route path={ROUTES.LOGIN} element={<Login onNavigate={handleNavigate} />} />

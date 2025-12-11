@@ -9,7 +9,7 @@ type AuthGateProps = {
 };
 
 export function AuthGate({ children, redirectTo = ROUTES.LOGIN }: AuthGateProps) {
-  const { session, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -19,7 +19,7 @@ export function AuthGate({ children, redirectTo = ROUTES.LOGIN }: AuthGateProps)
     );
   }
 
-  if (!session) {
+  if (!user) {
     return <Navigate to={redirectTo} replace />;
   }
 

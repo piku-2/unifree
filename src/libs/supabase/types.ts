@@ -16,6 +16,7 @@ export interface Database {
           username: string | null
           avatar_url: string | null
           university_email: string | null
+          created_at?: string | null
         }
         Insert: {
           id: string
@@ -23,6 +24,7 @@ export interface Database {
           username?: string | null
           avatar_url?: string | null
           university_email?: string | null
+          created_at?: string | null
         }
         Update: {
           id?: string
@@ -30,49 +32,56 @@ export interface Database {
           username?: string | null
           avatar_url?: string | null
           university_email?: string | null
+          created_at?: string | null
         }
       },
       items: {
         Row: {
-          id: string
-          user_id: string
+          id: string // bigint represented as string
+          owner_id: string | null // spec field
+          user_id: string | null // legacy field for compatibility
           title: string
           description: string
           price: number
-          images: string[]
+          images: string[] | null // legacy array storage
+          image_url: string | null // spec field (single image path)
           category: string
           condition: string | null
-          status: string
+          status: 'selling' | 'reserved' | 'sold' | string // include legacy statuses
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
-          user_id: string
+          owner_id?: string | null
+          user_id?: string | null
           title: string
           description: string
           price: number
-          images: string[]
+          images?: string[] | null
+          image_url?: string | null
           category: string
           condition?: string | null
-          status: string
+          status: 'selling' | 'reserved' | 'sold' | string
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          user_id?: string
+          owner_id?: string | null
+          user_id?: string | null
           title?: string
           description?: string
           price?: number
-          images?: string[]
+          images?: string[] | null
+          image_url?: string | null
           category?: string
           condition?: string | null
-          status?: string
+          status?: 'selling' | 'reserved' | 'sold' | string
           created_at?: string
           updated_at?: string
         }
-      }
+      },
       chat_rooms: {
         Row: {
           id: string
@@ -80,7 +89,7 @@ export interface Database {
           buyer_id: string
           seller_id: string
           created_at: string
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -88,7 +97,7 @@ export interface Database {
           buyer_id: string
           seller_id: string
           created_at?: string
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -96,9 +105,9 @@ export interface Database {
           buyer_id?: string
           seller_id?: string
           created_at?: string
-          updated_at?: string
+          updated_at?: string | null
         }
-      }
+      },
       messages: {
         Row: {
           id: string
@@ -122,6 +131,29 @@ export interface Database {
           sender_id?: string
           content?: string
           is_read?: boolean
+          created_at?: string
+        }
+      },
+      admin_events: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          date: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          date?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          date?: string | null
           created_at?: string
         }
       }

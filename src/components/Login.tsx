@@ -2,21 +2,48 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Header } from './Header';
 import { supabase } from '@/libs/supabase/client';
-import { ROUTES } from '@/config/routes';
 import { NavigateHandler } from '@/config/navigation';
 
 type LoginProps = {
-  // onNavigate preserved for backward compat if needed, but we use router mainly
   onNavigate?: NavigateHandler;
 };
 
 export function Login({ onNavigate }: LoginProps) {
   const navigate = useNavigate();
-
-
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
+  const isAcDomain = (value: string) => value.endsWith('.ac.jp');
 
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+
+    if (!email || !isAcDomain(email)) {
+      setErrorMessage('大学ドメイン（@xxx.ac.jp）のメールアドレスを入力してください');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+      setIsOtpSent(true);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage('メール送信に失敗しました。しばらくしてから再試行してください。');
+      setIsOtpSent(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen pb-20 md:pb-8 bg-background">
@@ -29,6 +56,33 @@ export function Login({ onNavigate }: LoginProps) {
             <h2 className="text-2xl mb-2 text-primary">ユニフリ</h2>
             <p className="text-sm text-secondary">学内フリマアプリ</p>
           </div>
+
+          <form className="space-y-4 mb-6" onSubmit={handleEmailLogin}>
+            <div>
+              <label className="block text-sm mb-2 text-foreground">大学メールアドレス</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 border border-border rounded bg-card"
+                placeholder="you@example.ac.jp"
+                required
+              />
+            </div>
+            {errorMessage && <p className="text-destructive text-sm">{errorMessage}</p>}
+            {isOtpSent && (
+              <p className="text-sm text-primary">
+                認証メールを送信しました。メール内のリンクからログインしてください。
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 border-2 border-primary bg-primary text-white rounded hover:bg-[#5A8BFF] transition-colors disabled:opacity-50"
+            >
+              {isLoading ? '送信中...' : 'メールでログイン'}
+            </button>
+          </form>
 
           <div className="space-y-6">
             <button
@@ -65,7 +119,7 @@ export function Login({ onNavigate }: LoginProps) {
         </div>
 
         <div className="mt-8 border border-warning bg-warning/10 p-4 rounded-lg">
-          <h4 className="text-sm mb-2 text-foreground">📢 ご利用にあたって</h4>
+          <h4 className="text-sm mb-2 text-foreground">?? ご利用にあたって</h4>
           <ul className="text-xs space-y-1 text-secondary">
             <li>・大学のメールアドレスでの登録が必要です</li>
             <li>・取引は対面での受け渡しのみとなります</li>
