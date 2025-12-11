@@ -1,7 +1,0 @@
-export default function LoadingAdminItems() {
-  return (
-    <div className="min-h-screen flex items-center justify-center text-secondary">
-      Loading...
-    </div>
-  );
-}
