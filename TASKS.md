@@ -24,23 +24,3 @@
 - [Env] 現状 Vite/React Router 実装のため、Next.js 移行手順とスコープを擦り合わせてから着手する。
 
 ## 修正依頼
-
-次のタスクを実行してください。
-
-目的：
-
-- App Router と src/components の配線が完了した状態を前提に、
-  ルーティング・認証・責務分離を最終整理する
-
-やること：
-
-1. navigation handler / RouteKey / route map を 1 箇所に集約
-2. 各 page.tsx を「薄いラッパー」に統一
-3. middleware と server redirect の役割をコメントで明示
-4. 不要な仮コード・コメントを削除
-
-禁止：
-
-- UI 変更
-- Tailwind クラス変更
-- Supabase auth ロジックの改変
