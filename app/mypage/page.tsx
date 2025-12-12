@@ -1,81 +1,73 @@
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { supabaseServerClient } from '../../lib/supabase/server';
-import { Database } from '../../supabase/types';
+'use client';
 
-type ItemRow = Database['public']['Tables']['items']['Row'];
-type ChatRoomRow = Pick<Database['public']['Tables']['chat_rooms']['Row'], 'id' | 'item_id' | 'created_at'>;
+import { useRouter } from 'next/navigation';
+import { MyPage as MyPageComponent } from '@/components/MyPage';
+import { ROUTES } from '@/config/routes';
+import { NavigateHandler } from '@/config/navigation';
 
-export default async function MyPage() {
-  const supabase = supabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+export default function MyPage() {
+  const router = useRouter();
 
-  const [{ data: myItems }, { data: chatsAsBuyer }, { data: chatsAsSeller }] = await Promise.all([
-    supabase
-      .from('items')
-      .select('*')
-      .eq('owner_id', user.id)
-      .order('created_at', { ascending: false })
-      .returns<ItemRow[] | null>(),
-    supabase
-      .from('chat_rooms')
-      .select('id,item_id,created_at')
-      .eq('buyer_id', user.id)
-      .returns<ChatRoomRow[] | null>(),
-    supabase
-      .from('chat_rooms')
-      .select('id,item_id,created_at')
-      .eq('seller_id', user.id)
-      .returns<ChatRoomRow[] | null>(),
-  ]);
+  const handleNavigate: NavigateHandler = (page, params) => {
+    switch (page) {
+      case 'home':
+        router.push(ROUTES.HOME);
+        break;
+      case 'item-list':
+        router.push(ROUTES.ITEM_LIST);
+        break;
+      case 'item-detail':
+        router.push(
+          params?.itemId
+            ? ROUTES.ITEM_DETAIL.replace(':id', params.itemId)
+            : ROUTES.ITEM_LIST
+        );
+        break;
+      case 'item-edit':
+        router.push(
+          params?.itemId
+            ? ROUTES.ITEM_EDIT.replace(':id', params.itemId)
+            : ROUTES.MYPAGE
+        );
+        break;
+      case 'sell':
+        router.push(ROUTES.SELL);
+        break;
+      case 'mypage':
+        router.push(ROUTES.MYPAGE);
+        break;
+      case 'profile_edit':
+        router.push(ROUTES.PROFILE_EDIT);
+        break;
+      case 'chat':
+        router.push(ROUTES.CHAT_LIST);
+        break;
+      case 'chat-room':
+        router.push(
+          params?.roomId
+            ? ROUTES.CHAT_ROOM.replace(':roomId', params.roomId)
+            : ROUTES.CHAT_LIST
+        );
+        break;
+      case 'login':
+        router.push(ROUTES.LOGIN);
+        break;
+      case 'register':
+        router.push(ROUTES.REGISTER);
+        break;
+      case 'admin':
+        router.push(ROUTES.ADMIN);
+        break;
+      case 'admin-items':
+        router.push(ROUTES.ADMIN_ITEMS);
+        break;
+      case 'admin-orders':
+        router.push(ROUTES.ADMIN_ORDERS);
+        break;
+      default:
+        router.push(ROUTES.HOME);
+    }
+  };
 
-  return (
-    <main className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">マイページ</h1>
-
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">自分の出品</h2>
-          <Link href="/sell" className="text-blue-600 underline">
-            新規出品
-          </Link>
-        </div>
-        {myItems && myItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {myItems.map((item) => (
-              <Link key={item.id} href={`/items/${item.id}`} className="border rounded p-3 hover:shadow">
-                <p className="text-xs text-gray-500">{item.category}</p>
-                <p className="font-semibold">{item.title}</p>
-                <p className="text-blue-600">¥{item.price.toLocaleString()}</p>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-600">出品がありません。</p>
-        )}
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-xl font-semibold">購入申請 / チャット</h2>
-        <div className="space-y-2">
-          {[...(chatsAsBuyer ?? []), ...(chatsAsSeller ?? [])].length === 0 && (
-            <p className="text-gray-600">チャット履歴がありません。</p>
-          )}
-          {[...(chatsAsBuyer ?? []), ...(chatsAsSeller ?? [])].map((room) => (
-            <Link
-              key={room.id}
-              href={`/chat/${room.id}`}
-              className="block border rounded p-3 hover:shadow"
-            >
-              <p className="text-sm">Room ID: {room.id}</p>
-              <p className="text-xs text-gray-500">Item: {room.item_id}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </main>
-  );
+  return <MyPageComponent onNavigate={handleNavigate} />;
 }

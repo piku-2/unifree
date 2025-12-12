@@ -1,54 +1,73 @@
-import Link from "next/link";
-import { supabaseServerClient } from "@/lib/supabase/server";
+'use client';
 
-type ChatRoomListItem = {
-  id: number;
-  item_id: number;
-};
+import { useRouter } from 'next/navigation';
+import { Home } from '@/components/Home';
+import { ROUTES } from '@/config/routes';
+import { NavigateHandler } from '@/config/navigation';
 
-export default async function ChatListPage() {
-  const supabase = supabaseServerClient();
+export default function HomePage() {
+  const router = useRouter();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const handleNavigate: NavigateHandler = (page, params) => {
+    switch (page) {
+      case 'home':
+        router.push(ROUTES.HOME);
+        break;
+      case 'item-list':
+        router.push(ROUTES.ITEM_LIST);
+        break;
+      case 'item-detail':
+        router.push(
+          params?.itemId
+            ? ROUTES.ITEM_DETAIL.replace(':id', params.itemId)
+            : ROUTES.ITEM_LIST
+        );
+        break;
+      case 'item-edit':
+        router.push(
+          params?.itemId
+            ? ROUTES.ITEM_EDIT.replace(':id', params.itemId)
+            : ROUTES.MYPAGE
+        );
+        break;
+      case 'sell':
+        router.push(ROUTES.SELL);
+        break;
+      case 'mypage':
+        router.push(ROUTES.MYPAGE);
+        break;
+      case 'profile_edit':
+        router.push(ROUTES.PROFILE_EDIT);
+        break;
+      case 'chat':
+        router.push(ROUTES.CHAT_LIST);
+        break;
+      case 'chat-room':
+        router.push(
+          params?.roomId
+            ? ROUTES.CHAT_ROOM.replace(':roomId', params.roomId)
+            : ROUTES.CHAT_LIST
+        );
+        break;
+      case 'login':
+        router.push(ROUTES.LOGIN);
+        break;
+      case 'register':
+        router.push(ROUTES.REGISTER);
+        break;
+      case 'admin':
+        router.push(ROUTES.ADMIN);
+        break;
+      case 'admin-items':
+        router.push(ROUTES.ADMIN_ITEMS);
+        break;
+      case 'admin-orders':
+        router.push(ROUTES.ADMIN_ORDERS);
+        break;
+      default:
+        router.push(ROUTES.HOME);
+    }
+  };
 
-  if (!user) {
-    return (
-      <main className="p-6">
-        <p className="text-gray-600">ログインが必要です。</p>
-      </main>
-    );
-  }
-
-  const { data } = await supabase
-    .from("chat_rooms")
-    .select("id,item_id")
-    .order("created_at", { ascending: false });
-
-  // ★★ ここが「必須」 ★★
-  const rooms: ChatRoomListItem[] = (data ?? []) as ChatRoomListItem[];
-
-  return (
-    <main className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">チャット一覧</h1>
-
-      {rooms.length > 0 ? (
-        <div className="space-y-2">
-          {rooms.map((room) => (
-            <Link
-              key={room.id}
-              href={`/chat/${room.id}`}
-              className="block border rounded p-3 hover:shadow"
-            >
-              <p className="text-sm">Room ID: {room.id}</p>
-              <p className="text-xs text-gray-600">Item ID: {room.item_id}</p>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-600">チャットはまだありません。</p>
-      )}
-    </main>
-  );
+  return <Home onNavigate={handleNavigate} />;
 }

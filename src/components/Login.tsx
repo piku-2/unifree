@@ -1,28 +1,66 @@
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { Header } from './Header';
-import { supabase } from '@/libs/supabase/client';
-import { NavigateHandler } from '@/config/navigation';
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Header } from "@/components/Header";
+import { supabase } from "@/lib/supabase/client";
+import { NavigateHandler } from "@/config/navigation";
 
 type LoginProps = {
   onNavigate?: NavigateHandler;
 };
 
 export function Login({ onNavigate }: LoginProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const isAcDomain = (value: string) => value.endsWith('.ac.jp');
+  const fallbackNavigate: NavigateHandler = (page, params) => {
+    switch (page) {
+      case "home":
+        router.push("/");
+        return;
+      case "login":
+        router.push("/login");
+        return;
+      case "sell":
+        router.push("/sell");
+        return;
+      case "mypage":
+        router.push("/mypage");
+        return;
+      case "item-detail":
+        if (params?.itemId) {
+          router.push(`/items/${params.itemId}`);
+        } else {
+          router.push("/items");
+        }
+        return;
+      case "item-list":
+        router.push("/items");
+        return;
+      case "chat":
+        router.push("/chat");
+        return;
+      default:
+        router.push("/");
+    }
+  };
+
+  const handleNavigate = onNavigate ?? fallbackNavigate;
+
+  const isAcDomain = (value: string) => value.endsWith(".ac.jp");
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage('');
+    setErrorMessage("");
 
     if (!email || !isAcDomain(email)) {
-      setErrorMessage('大学ドメイン（@xxx.ac.jp）のメールアドレスを入力してください');
+      setErrorMessage(
+        "大学ドメイン（@xxx.ac.jp）のメールアドレスを入力してください"
+      );
       return;
     }
 
@@ -38,7 +76,9 @@ export function Login({ onNavigate }: LoginProps) {
       setIsOtpSent(true);
     } catch (err) {
       console.error(err);
-      setErrorMessage('メール送信に失敗しました。しばらくしてから再試行してください。');
+      setErrorMessage(
+        "メール送信に失敗しました。しばらくしてから再試行してください。"
+      );
       setIsOtpSent(false);
     } finally {
       setIsLoading(false);
@@ -47,7 +87,7 @@ export function Login({ onNavigate }: LoginProps) {
 
   return (
     <div className="min-h-screen pb-20 md:pb-8 bg-background">
-      <Header title="ログイン" onNavigate={onNavigate} showBack />
+      <Header title="ログイン" onNavigate={handleNavigate} showBack />
 
       <main className="max-w-md mx-auto px-4 py-12">
         <div className="border border-border bg-card p-8 rounded-lg shadow-sm">
@@ -59,7 +99,9 @@ export function Login({ onNavigate }: LoginProps) {
 
           <form className="space-y-4 mb-6" onSubmit={handleEmailLogin}>
             <div>
-              <label className="block text-sm mb-2 text-foreground">大学メールアドレス</label>
+              <label className="block text-sm mb-2 text-foreground">
+                大学メールアドレス
+              </label>
               <input
                 type="email"
                 value={email}
@@ -69,25 +111,29 @@ export function Login({ onNavigate }: LoginProps) {
                 required
               />
             </div>
-            {errorMessage && <p className="text-destructive text-sm">{errorMessage}</p>}
+
+            {errorMessage && (
+              <p className="text-destructive text-sm">{errorMessage}</p>
+            )}
+
             {isOtpSent && (
               <p className="text-sm text-primary">
                 認証メールを送信しました。メール内のリンクからログインしてください。
               </p>
             )}
+
             <button
               type="submit"
               disabled={isLoading}
               className="w-full py-3 border-2 border-primary bg-primary text-white rounded hover:bg-[#5A8BFF] transition-colors disabled:opacity-50"
             >
-              {isLoading ? '送信中...' : 'メールでログイン'}
+              {isLoading ? "送信中..." : "メールでログイン"}
             </button>
           </form>
-
         </div>
 
         <div className="mt-8 border border-warning bg-warning/10 p-4 rounded-lg">
-          <h4 className="text-sm mb-2 text-foreground">?? ご利用にあたって</h4>
+          <h4 className="text-sm mb-2 text-foreground">ご利用にあたって</h4>
           <ul className="text-xs space-y-1 text-secondary">
             <li>・大学のメールアドレスでの登録が必要です</li>
             <li>・取引は対面での受け渡しのみとなります</li>
