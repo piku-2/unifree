@@ -88,7 +88,8 @@ create trigger on_auth_user_created
 
 create table public.items (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references public.users(id) not null,
+  owner_id uuid references public.profiles(id) not null, -- 新: profiles.id に紐付け
+  user_id uuid references public.users(id),             -- 旧フィールド（後方互換用、任意）
 
   title text not null,
   description text not null,
@@ -112,13 +113,13 @@ create policy "Items are viewable by everyone." on public.items
   for select using (true);
 
 create policy "Users can insert their own items." on public.items
-  for insert with check (auth.uid() = user_id);
+  for insert with check (auth.uid() = owner_id);
 
 create policy "Users can update their own items." on public.items
-  for update using (auth.uid() = user_id);
+  for update using (auth.uid() = owner_id);
 
 create policy "Users can delete their own items." on public.items
-  for delete using (auth.uid() = user_id);
+  for delete using (auth.uid() = owner_id);
 
 
 -----------------------------------------

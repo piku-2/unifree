@@ -37,6 +37,12 @@ npm run dev
 - Tables → items / messages / rooms を作成
 - RLS → Authenticated のみ読み書き可
 
+### Auth Redirect 設定（必須）
+
+- Site URL: `http://localhost:3000`
+- Redirect URLs: `http://localhost:3000/auth/callback`
+- 末尾のスラッシュは付けないこと
+
 ---
 
 ## Directory Safety

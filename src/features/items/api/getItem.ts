@@ -14,7 +14,7 @@ export const getItem = async (id: string): Promise<ItemWithUser> => {
     .from('items')
     .select(`
       *,
-      owner:profiles!owner_id (
+      owner:profiles!items_owner_id_fkey (
         id,
         username,
         avatar_url

@@ -26,7 +26,7 @@ export function useItem(itemId: string) {
             .from('items')
             .select(`
               *,
-              owner:profiles!owner_id (
+              owner:profiles!items_owner_id_fkey (
                 id,
                 username,
                 avatar_url
