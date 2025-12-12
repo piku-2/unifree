@@ -71,7 +71,11 @@ export const createItem = async (input: CreateItemInput) => {
   };
 
   // RLS must allow inserts where owner_id = auth.uid()
-  const { data, error } = await supabase.from('items').insert(payload).select().single();
+  const { data, error } = await supabase
+    .from('items')
+    .insert([payload] as any) // 型不整合回避
+    .select()
+    .single();
 
   if (error) {
     throw error;

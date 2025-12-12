@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { supabaseServerClient } from '../../lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { Database } from '../../supabase/types';
+
+type ChatRoomListRow = Pick<
+  Database['public']['Tables']['chat_rooms']['Row'],
+  'id' | 'item_id' | 'created_at'
+>;
 
 export default async function ChatListPage() {
   const supabase = supabaseServerClient();
@@ -13,7 +19,8 @@ export default async function ChatListPage() {
     .from('chat_rooms')
     .select('id,item_id,created_at')
     .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .returns<ChatRoomListRow[] | null>();
 
   return (
     <main className="p-6 space-y-4">

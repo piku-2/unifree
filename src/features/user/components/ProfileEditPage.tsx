@@ -32,12 +32,16 @@ export function ProfileEditPage({ onNavigate }: ProfileEditPageProps) {
 
       const { error: profileError } = await supabase
         .from('profiles')
-        .upsert({
-          id: user.id,
-          username: displayName || null,
-          avatar_url: avatarUrl,
-          updated_at: new Date().toISOString(),
-        });
+        .upsert(
+          [
+            {
+              id: user.id,
+              username: displayName || null,
+              avatar_url: avatarUrl,
+              updated_at: new Date().toISOString(),
+            },
+          ] as any,
+        );
 
       if (profileError) {
         throw profileError;
