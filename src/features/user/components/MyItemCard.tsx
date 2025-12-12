@@ -8,6 +8,15 @@ type MyItemCardProps = {
 };
 
 export function MyItemCard({ item, onClick, onEdit, onDelete }: MyItemCardProps) {
+  const isSelling = item.status === 'on_sale' || item.status === 'selling';
+  const isReserved = item.status === 'reserved' || item.status === 'trading';
+  const isSold = item.status === 'sold' || item.status === 'sold_out';
+
+  const statusLabel = isSelling ? '出品中' : isReserved ? '取引中' : isSold ? '売却済' : item.status;
+  const statusClass = isSelling
+    ? 'bg-info/20 border-info text-primary'
+    : 'bg-muted border-border text-secondary';
+
   return (
     <div className="w-full border border-border bg-card hover:shadow-md transition-all text-left rounded-lg overflow-hidden flex">
        {/* Main Click Area */}
@@ -22,14 +31,12 @@ export function MyItemCard({ item, onClick, onEdit, onDelete }: MyItemCardProps)
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs px-2 py-1 border border-border rounded bg-muted text-secondary truncate max-w-[100px]">{item.category}</span>
-            <span className={`text-xs px-2 py-1 border rounded ${
-              item.status === 'on_sale' ? 'bg-info/20 border-info text-primary' : 'bg-muted border-border text-secondary'
-            }`}>
-              {item.status === 'on_sale' ? '出品中' : item.status}
+            <span className={`text-xs px-2 py-1 border rounded ${statusClass}`}>
+              {statusLabel}
             </span>
           </div>
           <h4 className="mb-2 text-foreground truncate">{item.title}</h4>
-          <p className="text-xl mb-2 text-accent">¥{item.price.toLocaleString()}</p>
+          <p className="text-xl mb-2 text-accent">\{item.price.toLocaleString()}</p>
         </div>
       </button>
 

@@ -1,12 +1,21 @@
-export type ItemStatus = 'on_sale' | 'sold_out' | 'trading';
+export type ItemStatus =
+  | 'on_sale'
+  | 'sold_out'
+  | 'trading'
+  | 'selling'
+  | 'reserved'
+  | 'sold'
+  | string;
 
 export type Item = {
   id: string;
-  user_id: string;
+  user_id?: string | null;
+  owner_id?: string | null;
   title: string;
   description: string;
   price: number;
-  images: string[];
+  images?: string[] | null;
+  image_url?: string | null;
   category: string;
   condition?: string;
   status: ItemStatus;

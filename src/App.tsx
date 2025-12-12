@@ -2,7 +2,7 @@ import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router
 import { Home } from './components/Home';
 import { ItemList } from '@/features/items/components/ItemList';
 import { ItemDetail } from '@/features/items/components/ItemDetail';
-import { ItemForm as SellForm } from '@/features/items/components/ItemForm';
+import { ItemForm } from '@/features/items/components/ItemForm';
 import { MyPage } from './components/MyPage';
 import { Login } from './components/Login';
 import { ChatList } from '@/features/chat/components/ChatList';
@@ -13,6 +13,8 @@ import { AdminOrdersPage } from '@/features/admin/components/AdminOrdersPage';
 import { AuthGate } from '@/features/user/components/AuthGate';
 import { ROUTES } from '@/config/routes';
 import { NavigateHandler, NavigatePage, NavigateParams } from '@/config/navigation';
+import { SellPage } from '@/features/items/components/SellPage';
+import { ProfileEditPage } from '@/features/user/components/ProfileEditPage';
 
 function ItemDetailWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
   const { id } = useParams();
@@ -21,7 +23,7 @@ function ItemDetailWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
 
 function ItemEditWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
   const { id } = useParams();
-  return <SellForm itemId={id || ''} onNavigate={onNavigate} />;
+  return <ItemForm itemId={id || ''} onNavigate={onNavigate} />;
 }
 
 
@@ -63,6 +65,9 @@ export default function App() {
         break;
       case 'mypage':
         navigate(ROUTES.MYPAGE);
+        break;
+      case 'profile_edit':
+        navigate(ROUTES.PROFILE_EDIT);
         break;
       case 'chat':
         navigate(ROUTES.CHAT_LIST);
@@ -109,9 +114,10 @@ export default function App() {
 
 
         <Route element={<AuthGate redirectTo={ROUTES.LOGIN} />}>
-          <Route path={ROUTES.SELL} element={<SellForm onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.SELL} element={<SellPage onNavigate={handleNavigate} />} />
           <Route path={ROUTES.ITEM_EDIT} element={<ItemEditWrapper onNavigate={handleNavigate} />} />
           <Route path={ROUTES.MYPAGE} element={<MyPage onNavigate={handleNavigate} />} />
+          <Route path={ROUTES.PROFILE_EDIT} element={<ProfileEditPage onNavigate={handleNavigate} />} />
           <Route path={ROUTES.CHAT_LIST} element={<ChatList onNavigate={handleNavigate} />} />
           <Route path={ROUTES.CHAT_ROOM} element={<ChatRoomWrapper onNavigate={handleNavigate} />} />
           <Route path={ROUTES.ADMIN} element={<AdminDashboard onNavigate={handleNavigate} />} />

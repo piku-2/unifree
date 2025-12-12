@@ -22,6 +22,14 @@ export function Header({ title, onNavigate, showBack = false }: HeaderProps) {
           <h1 className="text-xl text-primary">{title}</h1>
         </div>
         <div className="flex items-center gap-4">
+          {user && (
+            <button
+              onClick={() => onNavigate('sell')}
+              className="px-4 py-2 border-2 border-accent bg-accent text-white rounded hover:bg-[#FF7F50] transition-colors"
+            >
+              出品する
+            </button>
+          )}
           {user ? (
             <button
               onClick={() => onNavigate('mypage')}

@@ -8,6 +8,8 @@ type ItemCardProps = {
 export function ItemCard({ item, onClick }: ItemCardProps) {
   // Use first image or placeholder
   const imageUrl = item.images && item.images.length > 0 ? item.images[0] : null;
+  const isSold = item.status === 'sold_out' || item.status === 'sold';
+  const isReserved = item.status === 'reserved' || item.status === 'trading';
 
   return (
     <button
@@ -20,11 +22,16 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
         ) : (
              <div className="w-20 h-20 border-2 border-primary/30 rounded"></div>
         )}
-         {item.status === 'sold_out' && (
-             <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold text-lg rotate-[-15deg]">
-                 SOLD OUT
-             </div>
-         )}
+        {isSold && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold text-lg rotate-[-15deg]">
+            SOLD OUT
+          </div>
+        )}
+        {!isSold && isReserved && (
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-white font-bold text-lg rotate-[-15deg]">
+            RESERVED
+          </div>
+        )}
       </div>
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-center gap-2 mb-2">
