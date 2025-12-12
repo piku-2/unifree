@@ -1,36 +1,43 @@
-import Link from 'next/link';
-import { supabaseServerClient } from '../../lib/supabase/server';
-import { redirect } from 'next/navigation';
-import { Database } from '../../supabase/types';
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { supabaseServerClient } from "@/lib/supabase/server";
 
-type ChatRoomListRow = Pick<
-  Database['public']['Tables']['chat_rooms']['Row'],
-  'id' | 'item_id' | 'created_at'
->;
+type ChatRoomListItem = {
+  id: number;
+  item_id: number;
+};
 
 export default async function ChatListPage() {
   const supabase = supabaseServerClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
 
-  const { data: rooms } = await supabase
-    .from('chat_rooms')
-    .select('id,item_id,created_at')
-    .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
-    .order('created_at', { ascending: false })
-    .returns<ChatRoomListRow[] | null>();
+  if (!user) redirect("/login");
+
+  const { data } = await supabase
+    .from("chat_rooms")
+    .select("id,item_id")
+    .order("created_at", { ascending: false });
+
+  // ★★ ここが「必須」 ★★
+  const rooms: ChatRoomListItem[] = (data ?? []) as ChatRoomListItem[];
 
   return (
     <main className="p-6 space-y-4">
       <h1 className="text-2xl font-bold">チャット一覧</h1>
-      {rooms && rooms.length > 0 ? (
+
+      {rooms.length > 0 ? (
         <div className="space-y-2">
           {rooms.map((room) => (
-            <Link key={room.id} href={`/chat/${room.id}`} className="block border rounded p-3 hover:shadow">
+            <Link
+              key={room.id}
+              href={`/chat/${room.id}`}
+              className="block border rounded p-3 hover:shadow"
+            >
               <p className="text-sm">Room ID: {room.id}</p>
-              <p className="text-xs text-gray-600">Item: {room.item_id}</p>
+              <p className="text-xs text-gray-600">Item ID: {room.item_id}</p>
             </Link>
           ))}
         </div>
