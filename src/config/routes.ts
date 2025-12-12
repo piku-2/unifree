@@ -10,6 +10,7 @@ export const ROUTES = {
   PROFILE_EDIT: '/mypage/edit',
   CHAT_LIST: '/chat',
   CHAT_ROOM: '/chat/:roomId',
+  AUTH_CALLBACK: '/auth/callback',
   ADMIN: '/admin',
   ADMIN_ITEMS: '/admin/items',
   ADMIN_ORDERS: '/admin/orders',

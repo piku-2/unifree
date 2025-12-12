@@ -14,14 +14,40 @@ export function useItem(itemId: string) {
     }
 
     const fetchItem = async () => {
+        type ItemRow = ItemWithUser & {
+          owner?: {
+            id?: string;
+            username?: string | null;
+            avatar_url?: string | null;
+          };
+        };
+
         const { data, error } = await supabase
             .from('items')
-            .select('*, user:users(name, avatar_url, department)')
+            .select(`
+              *,
+              owner:profiles!owner_id (
+                id,
+                username,
+                avatar_url
+              )
+            `)
             .eq('id', itemId)
             .single();
 
         if (error) throw error;
-        setItem(data as any as ItemWithUser);
+        const { owner, ...rest } = data as ItemRow;
+        setItem({
+          ...rest,
+          user: owner
+            ? {
+                id: owner.id,
+                username: owner.username,
+                name: owner.username ?? undefined,
+                avatar_url: owner.avatar_url ?? undefined,
+              }
+            : undefined,
+        });
     };
 
     fetchItem()
