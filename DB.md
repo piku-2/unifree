@@ -184,6 +184,32 @@ create policy "Users can insert messages in their rooms." on public.messages
       and (buyer_id = auth.uid() or seller_id = auth.uid())
     )
   );
+
+-----------------------------------------
+-- 6. Admin Events テーブル (管理者用)
+-----------------------------------------
+
+create table public.admin_events (
+  id bigint generated always as identity primary key,
+  name text not null,
+  description text,
+  date date,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.admin_events enable row level security;
+
+create policy "Admins can view admin_events." on public.admin_events
+  for select using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create policy "Admins can insert admin_events." on public.admin_events
+  for insert with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create policy "Admins can update admin_events." on public.admin_events
+  for update using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create policy "Admins can delete admin_events." on public.admin_events
+  for delete using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 ```
 
 ## 4. Storage の設定

@@ -3,7 +3,7 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": ["vite/client", "node"],
+    "types": ["vite/client", "node", "next"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
 
     /* Linting */
     "strict": false,
@@ -65,5 +65,5 @@
       "@radix-ui/react-accordion@1.2.3": ["node_modules/@radix-ui/react-accordion"]
     }
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "vite.config.ts", "app", "next-env.d.ts", "supabase"]
 }
