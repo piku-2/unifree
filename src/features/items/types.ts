@@ -23,10 +23,15 @@ export type Item = {
   updated_at: string;
 };
 
+export type ItemUserProfile = {
+  id?: string;
+  username?: string | null;
+  name?: string | null;
+  avatar_url?: string | null;
+  department?: string | null;
+};
+
 // Optional: View type including user info if joined
 export type ItemWithUser = Item & {
-  user?: {
-    name: string;
-    avatar_url?: string;
-  };
+  user?: ItemUserProfile;
 };

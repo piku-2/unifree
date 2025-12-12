@@ -2,12 +2,21 @@ import { supabase } from '@/libs/supabase/client';
 import { Item, ItemWithUser } from '../types';
 
 export const getItem = async (id: string): Promise<ItemWithUser> => {
+  type ItemRow = ItemWithUser & {
+    owner?: {
+      id?: string;
+      username?: string | null;
+      avatar_url?: string | null;
+    };
+  };
+
   const { data, error } = await supabase
     .from('items')
     .select(`
       *,
-      user:user_id (
-        name,
+      owner:profiles!owner_id (
+        id,
+        username,
         avatar_url
       )
     `)
@@ -18,8 +27,17 @@ export const getItem = async (id: string): Promise<ItemWithUser> => {
     throw error;
   }
 
-  // Cast for now, complex types might need cleaner join handling
-  // Supabase returns user as an object or array depending on relation
-  // Assuming 1:1 or N:1 relation set up correctly in DB
-  return data as unknown as ItemWithUser;
+  const { owner, ...rest } = data as ItemRow;
+
+  return {
+    ...rest,
+    user: owner
+      ? {
+          id: owner.id,
+          username: owner.username,
+          name: owner.username ?? undefined,
+          avatar_url: owner.avatar_url ?? undefined,
+        }
+      : undefined,
+  };
 };

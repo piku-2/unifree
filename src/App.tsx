@@ -15,6 +15,7 @@ import { ROUTES } from '@/config/routes';
 import { NavigateHandler, NavigatePage, NavigateParams } from '@/config/navigation';
 import { SellPage } from '@/features/items/components/SellPage';
 import { ProfileEditPage } from '@/features/user/components/ProfileEditPage';
+import { AuthCallback } from '@/features/user/components/AuthCallback';
 
 function ItemDetailWrapper({ onNavigate }: { onNavigate: NavigateHandler }) {
   const { id } = useParams();
@@ -100,7 +101,9 @@ export default function App() {
   };
 
   const isAuthPage =
-    location.pathname === ROUTES.LOGIN || location.pathname === ROUTES.REGISTER;
+    location.pathname === ROUTES.LOGIN ||
+    location.pathname === ROUTES.REGISTER ||
+    location.pathname === ROUTES.AUTH_CALLBACK;
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,6 +130,10 @@ export default function App() {
 
         <Route path={ROUTES.LOGIN} element={<Login onNavigate={handleNavigate} />} />
         <Route path={ROUTES.REGISTER} element={<Login onNavigate={handleNavigate} />} />
+        <Route
+          path={ROUTES.AUTH_CALLBACK}
+          element={<AuthCallback onNavigate={handleNavigate} />}
+        />
       </Routes>
 
       {!isAuthPage && (

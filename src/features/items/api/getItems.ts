@@ -2,16 +2,39 @@ import { supabase } from '@/libs/supabase/client';
 import { Item, ItemWithUser } from '../types';
 
 export const getItems = async (): Promise<ItemWithUser[]> => {
+  type ItemRow = Item & {
+    owner?: {
+      id?: string;
+      username?: string | null;
+      avatar_url?: string | null;
+    };
+  };
+
   const { data, error } = await supabase
     .from('items')
-    .select('*, user:users(name, avatar_url)')
+    .select(`
+      *,
+      owner:profiles!owner_id (
+        id,
+        username,
+        avatar_url
+      )
+    `)
     .order('created_at', { ascending: false });
 
   if (error) {
     throw error;
   }
 
-  return data as any as Item[]; // Casting to Item[] or ItemWithUser[] depending on usage.
-  // Ideally ItemWithUser. But generic Item often used.
-  // I will update return type in signature too.
+  return (data as ItemRow[] | null)?.map(({ owner, ...rest }) => ({
+    ...rest,
+    user: owner
+      ? {
+          id: owner.id,
+          username: owner.username,
+          name: owner.username ?? undefined,
+          avatar_url: owner.avatar_url ?? undefined,
+        }
+      : undefined,
+  })) ?? [];
 };
