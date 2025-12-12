@@ -41,15 +41,19 @@ export async function createItem(formData: FormData) {
 
   const { data, error } = await supabase
     .from('items')
-    .insert({
-      owner_id: user.id,
-      title,
-      description,
-      price,
-      category,
-      status: status ?? 'selling',
-      image_url: imageUrl,
-    })
+    .insert(
+      [
+        {
+          owner_id: user.id,
+          title,
+          description,
+          price,
+          category,
+          status: status ?? 'selling',
+          image_url: imageUrl,
+        },
+      ] as any,
+    )
     .select()
     .single();
 
@@ -71,9 +75,13 @@ export async function getItems(filters: ItemFilters = {}) {
   return data;
 }
 
-export async function getItem(id: number | string) {
+export async function getItem(id: number | string): Promise<Database['public']['Tables']['items']['Row'] | null> {
   const supabase = supabaseServerClient();
-  const { data, error } = await supabase.from('items').select('*').eq('id', id).single();
+  const { data, error } = await supabase
+    .from('items')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle<Database['public']['Tables']['items']['Row']>();
   if (error) throw error;
-  return data;
+  return data ?? null;
 }

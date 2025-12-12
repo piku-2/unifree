@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { supabase } from '@/libs/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
 
+type ProfileUpdate = {
+  id?: string;
+  avatar_url?: string | null;
+  updated_at?: string | null;
+  username?: string | null;
+};
+
 export function useProfileImage() {
   const [uploading, setUploading] = useState(false);
 
@@ -27,7 +34,7 @@ export function useProfileImage() {
       const publicUrl = data.publicUrl;
 
       // 1. Update profiles table
-      const { error: updateTableError } = await supabase
+      const { error: updateTableError } = await (supabase as any)
         .from('profiles')
         .update({
           avatar_url: publicUrl,
@@ -40,13 +47,15 @@ export function useProfileImage() {
         // For now, assume profile created on trigger or login.
         // If not, we might need upsert.
         // Let's try upsert to be safe.
-        const { error: upsertError } = await supabase
+        const { error: upsertError } = await (supabase as any)
           .from('profiles')
-          .upsert({
-             id: userId,
-             avatar_url: publicUrl,
-             updated_at: new Date().toISOString()
-          });
+          .upsert([
+            {
+              id: userId,
+              avatar_url: publicUrl,
+              updated_at: new Date().toISOString(),
+            },
+          ]);
 
         if (upsertError) throw upsertError;
       }

@@ -1,13 +1,14 @@
-'use server';
+"use server";
 
-import { supabaseServerClient } from '../../lib/supabase/server';
+import { Database } from "@/supabase/types";
+import { supabaseServerClient } from "@/lib/supabase/server";
 
 type AdminCreateItemInput = {
   title: string;
   description: string;
   price: number;
   category: string;
-  status?: 'selling' | 'reserved' | 'sold';
+  status?: "selling" | "reserved" | "sold";
   image_url?: string | null;
   owner_id?: string;
 };
@@ -20,10 +21,10 @@ export async function adminCreateItem(input: AdminCreateItemInput) {
   } = await supabase.auth.getUser();
 
   if (userError) throw userError;
-  if (!user) throw new Error('認証が必要です。');
+  if (!user) throw new Error("認証が必要です。");
 
   const role = (user.app_metadata as any)?.role;
-  if (role !== 'admin') throw new Error('管理者権限が必要です。');
+  if (role !== "admin") throw new Error("管理者権限が必要です。");
 
   const payload = {
     owner_id: input.owner_id ?? user.id,
@@ -31,11 +32,25 @@ export async function adminCreateItem(input: AdminCreateItemInput) {
     description: input.description.trim(),
     price: input.price,
     category: input.category.trim(),
-    status: input.status ?? 'selling',
+    status: input.status ?? "selling",
     image_url: input.image_url ?? null,
   };
+  type ItemInsert = {
+    owner_id: string;
+    title: string;
+    description: string;
+    price: number;
+    category: string;
+    status: "selling" | "reserved" | "sold";
+    image_url: string | null;
+  };
 
-  const { data, error } = await supabase.from('items').insert(payload).select().single();
+  const { data, error } = await (supabase as any)
+    .from("items")
+    .insert(payload)
+    .select()
+    .single();
+
   if (error) throw error;
   return data;
 }

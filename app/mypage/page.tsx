@@ -1,6 +1,10 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { supabaseServerClient } from '../../lib/supabase/server';
+import { Database } from '../../supabase/types';
+
+type ItemRow = Database['public']['Tables']['items']['Row'];
+type ChatRoomRow = Pick<Database['public']['Tables']['chat_rooms']['Row'], 'id' | 'item_id' | 'created_at'>;
 
 export default async function MyPage() {
   const supabase = supabaseServerClient();
@@ -10,9 +14,22 @@ export default async function MyPage() {
   if (!user) redirect('/login');
 
   const [{ data: myItems }, { data: chatsAsBuyer }, { data: chatsAsSeller }] = await Promise.all([
-    supabase.from('items').select('*').eq('owner_id', user.id).order('created_at', { ascending: false }),
-    supabase.from('chat_rooms').select('id,item_id,created_at').eq('buyer_id', user.id),
-    supabase.from('chat_rooms').select('id,item_id,created_at').eq('seller_id', user.id),
+    supabase
+      .from('items')
+      .select('*')
+      .eq('owner_id', user.id)
+      .order('created_at', { ascending: false })
+      .returns<ItemRow[] | null>(),
+    supabase
+      .from('chat_rooms')
+      .select('id,item_id,created_at')
+      .eq('buyer_id', user.id)
+      .returns<ChatRoomRow[] | null>(),
+    supabase
+      .from('chat_rooms')
+      .select('id,item_id,created_at')
+      .eq('seller_id', user.id)
+      .returns<ChatRoomRow[] | null>(),
   ]);
 
   return (

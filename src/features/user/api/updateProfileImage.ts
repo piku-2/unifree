@@ -29,11 +29,15 @@ export const updateProfileImage = async (blob: Blob): Promise<string> => {
 
   const { error: profileError } = await supabase
     .from('profiles')
-    .upsert({
-      id: user.id,
-      avatar_url: publicUrl,
-      updated_at: new Date().toISOString(),
-    });
+    .upsert(
+      [
+        {
+          id: user.id,
+          avatar_url: publicUrl,
+          updated_at: new Date().toISOString(),
+        },
+      ] as any,
+    );
 
   if (profileError) {
     throw profileError;
