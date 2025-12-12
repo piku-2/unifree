@@ -84,38 +84,6 @@ export function Login({ onNavigate }: LoginProps) {
             </button>
           </form>
 
-          <div className="space-y-6">
-            <button
-              onClick={async () => {
-                setIsLoading(true);
-                try {
-                  const { error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                      queryParams: {
-                        hd: 'ac.jp',
-                      },
-                      redirectTo: `${window.location.origin}/auth/callback`,
-                    },
-                  });
-                  if (error) throw error;
-                } catch (err) {
-                  alert('ログインに失敗しました');
-                  console.error(err);
-                  setIsLoading(false);
-                }
-              }}
-              disabled={isLoading}
-              className="w-full py-3 border-2 border-border bg-white text-foreground rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-3"
-            >
-              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-              <span>Googleでログイン</span>
-            </button>
-
-            <p className="text-sm text-center text-secondary">
-              ※大学発行のGoogleアカウント(@ac.jp)のみ利用可能です
-            </p>
-          </div>
         </div>
 
         <div className="mt-8 border border-warning bg-warning/10 p-4 rounded-lg">
