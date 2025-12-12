@@ -10,6 +10,7 @@ export type NavigatePage =
   | 'item-edit'
   | 'sell'
   | 'mypage'
+  | 'profile_edit'
   | 'chat'
   | 'chat-room'
   | 'login'

@@ -1,13 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from './Header';
 import { useAuth } from '@/features/user/hooks/useAuth';
-import { useProfileImage } from '@/features/user/hooks/useProfileImage';
 import { useMyItems } from '@/features/items/hooks/useMyItems';
 import { MyItemList } from '@/features/user/components/MyItemList';
 import { NavigateHandler } from '@/config/navigation';
-import { ProfileImageEditor } from './ProfileImageEditor';
-import { uploadImage } from '@/features/items/api/uploadImage';
-import { supabase } from '@/libs/supabase/client';
 
 type MyPageProps = {
   onNavigate: NavigateHandler;
@@ -18,12 +14,6 @@ export function MyPage({ onNavigate }: MyPageProps) {
   const { items, loading, handleDelete } = useMyItems();
   const [activeTab, setActiveTab] = useState<'items' | 'favorites'>('items');
   const [likedItems, setLikedItems] = useState<any[]>([]);
-
-  // Profile Image Editing State
-  const [isEditingImage, setIsEditingImage] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { uploadProfileImage } = useProfileImage();
 
   useEffect(() => {
     if (activeTab === 'favorites' && user) {
@@ -41,33 +31,6 @@ export function MyPage({ onNavigate }: MyPageProps) {
     onNavigate('item-edit', { itemId });
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setSelectedImage(URL.createObjectURL(file));
-      setIsEditingImage(true);
-      // Reset input so same file can be selected again if needed
-      e.target.value = '';
-    }
-  };
-
-  const handleSaveProfileImage = async (blob: Blob) => {
-    if (!user) return;
-
-    try {
-      await uploadProfileImage(user.id, blob);
-
-      // Force reload to update UI
-      window.location.reload();
-    } catch (error) {
-      console.error('Error updating avatar:', error);
-      alert('プロフィール画像の更新に失敗しました');
-    } finally {
-      setIsEditingImage(false);
-      setSelectedImage(null);
-    }
-  };
-
   return (
     <div className="min-h-screen pb-20 md:pb-8 bg-background">
       <Header title="マイページ" onNavigate={onNavigate} />
@@ -80,25 +43,18 @@ export function MyPage({ onNavigate }: MyPageProps) {
                 {user?.user_metadata?.avatar_url ? (
                    <img src={user?.user_metadata?.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                   <span className="text-2xl">??</span>
+                   <span className="text-2xl">👤</span>
                 )}
               </div>
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => onNavigate('profile_edit')}
                 className="absolute bottom-0 right-0 bg-primary text-white p-1 rounded-full shadow-md hover:bg-[#5A8BFF] transition-colors"
-                title="プロフィール画像を変更"
+                title="プロフィールを編集"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                 </svg>
               </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/*"
-                onChange={handleImageSelect}
-              />
             </div>
 
             <div>
@@ -107,6 +63,14 @@ export function MyPage({ onNavigate }: MyPageProps) {
               <div className="flex items-center gap-3 mt-2 text-sm text-secondary">
                 <span>? 4.8</span>
                 <span>出品数：{items.length}件</span>
+              </div>
+              <div className="mt-3">
+                <button
+                  onClick={() => onNavigate('profile_edit')}
+                  className="px-4 py-2 border-2 border-border rounded hover:bg-muted transition-colors text-sm"
+                >
+                  プロフィール編集
+                </button>
               </div>
             </div>
           </div>
@@ -185,16 +149,6 @@ export function MyPage({ onNavigate }: MyPageProps) {
         )}
       </main>
 
-      {isEditingImage && selectedImage && (
-        <ProfileImageEditor
-          imageSrc={selectedImage}
-          onCancel={() => {
-            setIsEditingImage(false);
-            setSelectedImage(null);
-          }}
-          onSave={handleSaveProfileImage}
-        />
-      )}
     </div>
   );
 }

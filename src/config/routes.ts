@@ -7,6 +7,7 @@ export const ROUTES = {
   ITEM_EDIT: '/items/:id/edit',
   SELL: '/sell',
   MYPAGE: '/mypage',
+  PROFILE_EDIT: '/mypage/edit',
   CHAT_LIST: '/chat',
   CHAT_ROOM: '/chat/:roomId',
   ADMIN: '/admin',
