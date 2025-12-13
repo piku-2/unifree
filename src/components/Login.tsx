@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { FormEvent, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { supabase } from "@/lib/supabase/client";
@@ -53,30 +54,36 @@ export function Login({ onNavigate }: LoginProps) {
 
   const isAcDomain = (value: string) => value.endsWith(".ac.jp");
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (
+    e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>
+  ) => {
     e.preventDefault();
     setErrorMessage("");
 
-    if (!email || !isAcDomain(email)) {
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail || !isAcDomain(normalizedEmail)) {
+      setIsOtpSent(false);
       setErrorMessage(
         "大学ドメイン（@xxx.ac.jp）のメールアドレスを入力してください"
       );
       return;
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    if (!siteUrl) {
+      console.error("NEXT_PUBLIC_SITE_URL is not configured");
+      setIsOtpSent(false);
+      setErrorMessage(
+        "メール送信に失敗しました。しばらくしてから再試行してください。"
+      );
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
-      const emailRedirectTo = (() => {
-        try {
-          return new URL("/auth/callback", siteUrl).toString();
-        } catch {
-          return new URL("/auth/callback", window.location.origin).toString();
-        }
-      })();
+      const emailRedirectTo = `${siteUrl}/auth/callback`;
       const { error } = await supabase.auth.signInWithOtp({
-        email,
+        email: normalizedEmail,
         options: {
           emailRedirectTo,
           shouldCreateUser: true,
@@ -134,6 +141,7 @@ export function Login({ onNavigate }: LoginProps) {
 
             <button
               type="submit"
+              onClick={handleEmailLogin}
               disabled={isLoading}
               className="w-full py-3 border-2 border-primary bg-primary text-white rounded hover:bg-[#5A8BFF] transition-colors disabled:opacity-50"
             >
