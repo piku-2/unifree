@@ -66,11 +66,20 @@ export function Login({ onNavigate }: LoginProps) {
 
     setIsLoading(true);
     try {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+      const siteUrl =
+        process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+      const emailRedirectTo = (() => {
+        try {
+          return new URL("/auth/callback", siteUrl).toString();
+        } catch {
+          return new URL("/auth/callback", window.location.origin).toString();
+        }
+      })();
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${siteUrl}/auth/callback`,
+          emailRedirectTo,
+          shouldCreateUser: true,
         },
       });
       if (error) throw error;

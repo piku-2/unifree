@@ -10,13 +10,15 @@ export function supabaseServerClient() {
 
   return createServerClient<Database>(supabaseUrl ?? '', supabaseAnonKey ?? '', {
     cookies: {
-      get: (name: string) => cookieStore.get(name)?.value,
-      set: (name: string, value: string, options) => {
-        cookieStore.set({ name, value, ...options });
+      getAll: () => cookieStore.getAll(),
+      setAll: (cookiesToSet) => {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          cookieStore.set({ name, value, ...options });
+        });
       },
-      remove: (name: string, options) => {
-        cookieStore.set({ name, value: '', ...options, maxAge: 0 });
-      },
+    },
+    cookieOptions: {
+      name: 'sb-access-token',
     },
   });
 }

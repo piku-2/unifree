@@ -16,6 +16,9 @@ export const supabase = (() => {
         persistSession: true,
         detectSessionInUrl: true,
       },
+      cookieOptions: {
+        name: "sb-access-token",
+      },
     });
   }
   return _supabase;
