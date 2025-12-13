@@ -1,4 +1,4 @@
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 export const sendMessage = async (roomId: string, senderId: string, content: string) => {
   const { error } = await supabase

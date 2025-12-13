@@ -1,4 +1,4 @@
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Item } from '../types';
 
 export const getMyItems = async (userId: string): Promise<Item[]> => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { ROUTES } from '@/config/routes';
 import { NavigateHandler } from '@/config/navigation';
 

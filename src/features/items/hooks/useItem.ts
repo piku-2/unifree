@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ItemWithUser } from '../types';
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 export function useItem(itemId: string) {
   const [item, setItem] = useState<ItemWithUser | null>(null);

@@ -1,4 +1,4 @@
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Message } from '../types';
 
 export const getMessages = async (roomId: string): Promise<Message[]> => {

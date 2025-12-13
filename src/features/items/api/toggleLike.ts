@@ -1,4 +1,4 @@
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 export const toggleLike = async (itemId: string, userId: string): Promise<boolean> => {
   // Check if already liked

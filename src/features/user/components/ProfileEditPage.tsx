@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { NavigateHandler } from '@/config/navigation';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { ProfileImageUploader } from './ProfileImageUploader';
 
 type ProfileEditPageProps = {

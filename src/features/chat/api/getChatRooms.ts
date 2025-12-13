@@ -1,4 +1,4 @@
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { ChatRoom } from '../types';
 
 export const getChatRooms = async (userId: string): Promise<any[]> => {
