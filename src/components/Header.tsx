@@ -10,7 +10,7 @@ type HeaderProps = {
 };
 
 export function Header({ title, onNavigate, showBack = false }: HeaderProps) {
-  const { user } = useAuth();
+  const { user, hydrated } = useAuth();
 
   return (
     <header className="bg-card border-b border-border sticky top-0 z-10 shadow-sm">
@@ -28,37 +28,43 @@ export function Header({ title, onNavigate, showBack = false }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          {user && (
-            <button
-              onClick={() => onNavigate("sell")}
-              className="px-4 py-2 border-2 border-accent bg-accent text-white rounded hover:bg-[#FF7F50] transition-colors"
-            >
-              出品する
-            </button>
-          )}
-
-          {user ? (
-            <button
-              onClick={() => onNavigate("mypage")}
-              className="w-10 h-10 border-2 border-border rounded-full bg-muted flex items-center justify-center overflow-hidden hover:border-primary transition-colors hover:shadow-md"
-            >
-              {user.user_metadata?.avatar_url ? (
-                <img
-                  src={user.user_metadata.avatar_url}
-                  alt="User"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-sm text-secondary">My</span>
-              )}
-            </button>
+          {!hydrated ? (
+            <div className="w-28 h-10" aria-hidden />
           ) : (
-            <button
-              onClick={() => onNavigate("login")}
-              className="px-4 py-2 border-2 border-primary text-primary rounded hover:bg-primary hover:text-white transition-colors"
-            >
-              ログイン
-            </button>
+            <>
+              {user && (
+                <button
+                  onClick={() => onNavigate("sell")}
+                  className="px-4 py-2 border-2 border-accent bg-accent text-white rounded hover:bg-[#FF7F50] transition-colors"
+                >
+                  出品する
+                </button>
+              )}
+
+              {user ? (
+                <button
+                  onClick={() => onNavigate("mypage")}
+                  className="w-10 h-10 border-2 border-border rounded-full bg-muted flex items-center justify-center overflow-hidden hover:border-primary transition-colors hover:shadow-md"
+                >
+                  {user.user_metadata?.avatar_url ? (
+                    <img
+                      src={user.user_metadata.avatar_url}
+                      alt="User"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm text-secondary">My</span>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={() => onNavigate("login")}
+                  className="px-4 py-2 border-2 border-primary text-primary rounded hover:bg-primary hover:text-white transition-colors"
+                >
+                  ログイン
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
