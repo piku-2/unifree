@@ -11,7 +11,7 @@ type AdminDashboardProps = {
 };
 
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
-  const { user } = useAuth();
+  const { user, hydrated } = useAuth();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,6 +47,14 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       alert('削除に失敗しました');
     }
   };
+
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen pb-20 md:pb-8 bg-background">
+        <Header title="管理者ダッシュボード" onNavigate={onNavigate} />
+      </div>
+    );
+  }
 
   if (!user || !isAdmin) {
     return (

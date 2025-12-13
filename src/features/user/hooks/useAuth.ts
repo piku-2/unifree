@@ -6,6 +6,7 @@ import { useAuthContext } from '../providers/AuthProvider';
 type FallbackAuthState = {
   user: User | null;
   loading: boolean;
+  hydrated: boolean;
   error: Error | null;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -14,6 +15,7 @@ type FallbackAuthState = {
 function useAuthFallback(): FallbackAuthState {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hydrated, setHydrated] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -26,6 +28,7 @@ function useAuthFallback(): FallbackAuthState {
         setError(sessionError);
       }
       setUser(data.session?.user ?? null);
+      setHydrated(true);
       setLoading(false);
     };
 
@@ -36,6 +39,7 @@ function useAuthFallback(): FallbackAuthState {
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!isMounted) return;
       setUser(nextSession?.user ?? null);
+      setHydrated(true);
       setLoading(false);
     });
 
@@ -67,7 +71,7 @@ function useAuthFallback(): FallbackAuthState {
     }
   };
 
-  return { user, loading, error, signOut, refreshUser };
+  return { user, loading, hydrated, error, signOut, refreshUser };
 }
 
 export function useAuth() {

@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase/client';
 type AuthContextValue = {
   user: User | null;
   loading: boolean;
+  hydrated: boolean;
   error: Error | null;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -21,6 +22,7 @@ type AuthProviderProps = {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hydrated, setHydrated] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -33,6 +35,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(sessionError);
       }
       setUser(data.session?.user ?? null);
+      setHydrated(true);
       setLoading(false);
     };
 
@@ -43,6 +46,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!isMounted) return;
       setUser(nextSession?.user ?? null);
+      setHydrated(true);
       setLoading(false);
     });
 
@@ -78,11 +82,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     () => ({
       user,
       loading,
+      hydrated,
       error,
       signOut,
       refreshUser,
     }),
-    [user, loading, error],
+    [user, loading, hydrated, error],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

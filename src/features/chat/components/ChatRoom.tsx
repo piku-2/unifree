@@ -10,7 +10,7 @@ type ChatRoomProps = {
 };
 
 export function ChatRoom({ roomId, onNavigate }: ChatRoomProps) {
-  const { user } = useAuth();
+  const { user, hydrated } = useAuth();
   const { messages, loading, send } = useChat(roomId, user?.id || '');
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -29,7 +29,15 @@ export function ChatRoom({ roomId, onNavigate }: ChatRoomProps) {
     setInputText('');
   };
 
-  if(!user) return <div>Auth required</div>;
+  if (!hydrated) {
+    return (
+      <div className="flex flex-col h-screen bg-background pb-20 md:pb-0">
+        <Header title="チャット" onNavigate={onNavigate} showBack />
+      </div>
+    );
+  }
+
+  if (!user) return <div>Auth required</div>;
 
   return (
     <div className="flex flex-col h-screen bg-background pb-20 md:pb-0">
