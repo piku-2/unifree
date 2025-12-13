@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import type { FormEvent, MouseEvent } from "react";
+import { useRef, useState } from "react";
+import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { supabase } from "@/lib/supabase/client";
@@ -17,6 +17,7 @@ export function Login({ onNavigate }: LoginProps) {
   const [email, setEmail] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const isSubmittingRef = useRef(false);
 
   const fallbackNavigate: NavigateHandler = (page, params) => {
     switch (page) {
@@ -54,14 +55,17 @@ export function Login({ onNavigate }: LoginProps) {
 
   const isAcDomain = (value: string) => value.endsWith(".ac.jp");
 
-  const handleEmailLogin = async (
-    e: FormEvent<HTMLFormElement> | MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleEmailLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isSubmittingRef.current) {
+      return;
+    }
+    isSubmittingRef.current = true;
     setErrorMessage("");
 
     const normalizedEmail = email.trim();
     if (!normalizedEmail || !isAcDomain(normalizedEmail)) {
+      isSubmittingRef.current = false;
       setIsOtpSent(false);
       setErrorMessage(
         "大学ドメイン（@xxx.ac.jp）のメールアドレスを入力してください"
@@ -71,6 +75,7 @@ export function Login({ onNavigate }: LoginProps) {
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
     if (!siteUrl) {
+      isSubmittingRef.current = false;
       console.error("NEXT_PUBLIC_SITE_URL is not configured");
       setIsOtpSent(false);
       setErrorMessage(
@@ -99,6 +104,7 @@ export function Login({ onNavigate }: LoginProps) {
       setIsOtpSent(false);
     } finally {
       setIsLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -141,7 +147,6 @@ export function Login({ onNavigate }: LoginProps) {
 
             <button
               type="submit"
-              onClick={handleEmailLogin}
               disabled={isLoading}
               className="w-full py-3 border-2 border-primary bg-primary text-white rounded hover:bg-[#5A8BFF] transition-colors disabled:opacity-50"
             >
