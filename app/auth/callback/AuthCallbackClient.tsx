@@ -13,27 +13,40 @@ export default function AuthCallbackClient() {
     if (hasHandled.current) return;
     hasHandled.current = true;
 
-    const callbackError =
-      searchParams.get('error') ?? searchParams.get('error_description');
-    if (callbackError) {
-      router.replace(`/login?error=${encodeURIComponent(callbackError)}`);
-      return;
-    }
+    const handleCallback = async () => {
+      const callbackError =
+        searchParams.get('error') ?? searchParams.get('error_description');
+      if (callbackError) {
+        router.replace(`/login?error=${encodeURIComponent(callbackError)}`);
+        return;
+      }
 
-    const code = searchParams.get('code');
-    if (!code) {
-      router.replace('/login?error=missing_code');
-      return;
-    }
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error(sessionError);
+      }
+      if (sessionData?.session) {
+        router.replace('/');
+        return;
+      }
 
-    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      const code = searchParams.get('code');
+      if (!code) {
+        router.replace('/login?error=missing_code');
+        return;
+      }
+
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) {
         const message = error?.message ?? 'auth_failed';
         router.replace(`/login?error=${encodeURIComponent(message)}`);
         return;
       }
+
       router.replace('/');
-    });
+    };
+
+    handleCallback();
   }, [router, searchParams]);
 
   return null;

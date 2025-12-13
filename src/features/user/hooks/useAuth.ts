@@ -17,25 +17,30 @@ function useAuthFallback(): FallbackAuthState {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    supabase.auth
-      .getUser()
-      .then(({ data, error: userError }) => {
-        if (userError) {
-          setError(userError);
-          return;
-        }
-        setUser(data.user ?? null);
-      })
-      .finally(() => setLoading(false));
+    let isMounted = true;
+
+    const syncSession = async () => {
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (!isMounted) return;
+      if (sessionError) {
+        setError(sessionError);
+      }
+      setUser(data.session?.user ?? null);
+      setLoading(false);
+    };
+
+    syncSession();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!isMounted) return;
       setUser(nextSession?.user ?? null);
       setLoading(false);
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -51,12 +56,12 @@ function useAuthFallback(): FallbackAuthState {
   const refreshUser = async () => {
     setLoading(true);
     try {
-      const { data, error: refreshError } = await supabase.auth.getUser();
+      const { data, error: refreshError } = await supabase.auth.getSession();
       if (refreshError) {
         setError(refreshError);
         return;
       }
-      setUser(data.user ?? null);
+      setUser(data.session?.user ?? null);
     } finally {
       setLoading(false);
     }
