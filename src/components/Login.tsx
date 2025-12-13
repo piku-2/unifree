@@ -35,11 +35,11 @@ export function Login({ onNavigate }: LoginProps) {
         if (params?.itemId) {
           router.push(`/items/${params.itemId}`);
         } else {
-          router.push("/items");
+          router.push("/");
         }
         return;
       case "item-list":
-        router.push("/items");
+        router.push("/");
         return;
       case "chat":
         router.push("/chat");
@@ -66,10 +66,11 @@ export function Login({ onNavigate }: LoginProps) {
 
     setIsLoading(true);
     try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${siteUrl}/auth/callback`,
         },
       });
       if (error) throw error;

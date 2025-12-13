@@ -14,20 +14,20 @@ export default function MyPage() {
         router.push(ROUTES.HOME);
         break;
       case 'item-list':
-        router.push(ROUTES.ITEM_LIST);
+        router.push(ROUTES.HOME);
         break;
       case 'item-detail':
         router.push(
           params?.itemId
             ? ROUTES.ITEM_DETAIL.replace(':id', params.itemId)
-            : ROUTES.ITEM_LIST
+            : ROUTES.HOME,
         );
         break;
       case 'item-edit':
         router.push(
           params?.itemId
             ? ROUTES.ITEM_EDIT.replace(':id', params.itemId)
-            : ROUTES.MYPAGE
+            : ROUTES.MYPAGE,
         );
         break;
       case 'sell':
@@ -46,7 +46,7 @@ export default function MyPage() {
         router.push(
           params?.roomId
             ? ROUTES.CHAT_ROOM.replace(':roomId', params.roomId)
-            : ROUTES.CHAT_LIST
+            : ROUTES.CHAT_LIST,
         );
         break;
       case 'login':
