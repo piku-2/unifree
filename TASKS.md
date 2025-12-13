@@ -10,17 +10,14 @@
 
 ## In Progress
 
-- なし
+-
 
 ## Done
 
-- [Build/Config] `next.config.js` が ESM export のまま `package.json` に `"type": "module"` がないため `MODULE_TYPELESS_PACKAGE_JSON` 警告が出る。影響を確認しつつ (a) CJS へ戻す、(b) `next.config.mjs` へリネーム、(c) `type: module` 追加のいずれかで解消する。 → CJS 形式に戻し、警告解消。
-- [UI/Wiring] App Router の `app/page.tsx`, `app/login/page.tsx`, `app/mypage/page.tsx` を既存の `src/components/Home`, `Login`, `MyPage` へ差し替え、デザインを変更せず配線のみ修正（react-router 依存を排除、Next `useRouter` に統一）。
+- [Auth/UX] Supabase メールログインを PKCE + cookie フローに統一し、ホーム/一覧からダミーデータと `/items` 依存を排除して 404 を防止。
 
 ## Notes
 
 - [DB] legacy カラム/型の移行方針（削除かマイグレーションか）を決める必要あり。
 - [Feature] Likes/気になる機能は仕様外。残すか外すか要判断。
 - [Env] 現状 Vite/React Router 実装のため、Next.js 移行手順とスコープを擦り合わせてから着手する。
-
-## 修正依頼

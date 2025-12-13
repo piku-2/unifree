@@ -60,7 +60,6 @@ export async function createItem(formData: FormData) {
   if (error) throw error;
 
   revalidatePath('/');
-  revalidatePath('/items');
   return data;
 }
 
