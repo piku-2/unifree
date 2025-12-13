@@ -1,4 +1,4 @@
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 export const deleteItem = async (itemId: string) => {
   const { error } = await supabase

@@ -1,4 +1,4 @@
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { ItemInput } from '../schema';
 
 export const updateItem = async (itemId: string, input: ItemInput) => {

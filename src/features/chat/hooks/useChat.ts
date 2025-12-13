@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Message } from '../types';
 import { getMessages } from '../api/getMessages';
 import { sendMessage } from '../api/sendMessage';

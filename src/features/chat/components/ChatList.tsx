@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { getChatRooms } from '../api/getChatRooms';
 import { useAuth } from '@/features/user/hooks/useAuth';
-import { supabase } from '@/libs/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { NavigateHandler } from '@/config/navigation';
 
 type ChatListProps = {
