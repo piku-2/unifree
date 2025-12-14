@@ -46,8 +46,8 @@ export async function createItem(formData: FormData) {
   const path = `${user.id}/${Date.now()}.${ext}`;
   const { error: uploadError } = await supabase.storage.from('items').upload(path, image);
   if (uploadError) handleSupabaseError(uploadError);
-  const { data } = supabase.storage.from('items').getPublicUrl(path);
-  const imageUrl = data.publicUrl;
+  const { data: publicUrlData } = supabase.storage.from('items').getPublicUrl(path);
+  const imageUrl = publicUrlData.publicUrl;
 
   const { data, error } = await supabase
     .from('items')

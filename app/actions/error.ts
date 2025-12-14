@@ -1,4 +1,4 @@
-'use server';
+"use client";
 
 type SupabaseError = {
   code?: string;
@@ -7,14 +7,14 @@ type SupabaseError = {
 };
 
 const isPermissionError = (error: SupabaseError) => {
-  const code = typeof error.code === 'string' ? error.code : '';
-  const status = typeof error.status === 'number' ? error.status : null;
-  const message = typeof error.message === 'string' ? error.message : '';
+  const code = typeof error.code === "string" ? error.code : "";
+  const status = typeof error.status === "number" ? error.status : null;
+  const message = typeof error.message === "string" ? error.message : "";
 
   return (
-    code === '42501' ||
-    code === 'PGRST301' ||
-    code === 'PGRST302' ||
+    code === "42501" ||
+    code === "PGRST301" ||
+    code === "PGRST302" ||
     status === 401 ||
     status === 403 ||
     /permission denied/i.test(message) ||
@@ -24,8 +24,10 @@ const isPermissionError = (error: SupabaseError) => {
 
 export const handleSupabaseError = (error: SupabaseError) => {
   if (!error) return;
+
   if (isPermissionError(error)) {
-    throw new Error('権限がありません。');
+    throw new Error("権限がありません。");
   }
+
   throw error;
 };
