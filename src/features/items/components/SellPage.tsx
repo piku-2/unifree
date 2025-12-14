@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/Header";
+import Header from "@/components/Header";
 import { ROUTES } from "@/config/routes";
 import { NavigateHandler } from "@/config/navigation";
 import { useAuth } from "@/features/user/hooks/useAuth";

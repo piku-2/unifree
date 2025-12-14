@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Header } from "./Header";
+import Header from "./Header";
 import { NavigateHandler } from "@/config/navigation";
 import { useItems } from "@/features/items/hooks/useItems";
 

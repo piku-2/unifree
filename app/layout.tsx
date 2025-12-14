@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "@/src/index.css"; // ★ これが本命
+import "@/src/index.css";
 
 export const metadata: Metadata = {
   title: "Unifree",
@@ -13,7 +13,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body className="bg-background text-foreground">{children}</body>
+      <body className="bg-background text-foreground min-h-screen">
+        {/* Header 分の高さを考慮したアプリ全体ラッパー */}
+        <div className="flex min-h-screen flex-col">{children}</div>
+      </body>
     </html>
   );
 }

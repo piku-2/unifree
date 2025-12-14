@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Header } from '@/components/Header';
+import Header from '@/components/Header';
 import { useItems } from '../hooks/useItems';
 import { ItemCard } from './ItemCard';
 import { SearchBar } from './SearchBar';

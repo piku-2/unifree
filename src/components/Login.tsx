@@ -1,4 +1,4 @@
-import { Header } from "./Header";
+import Header from "./Header";
 import { supabase } from "@/lib/supabase/client";
 
 type LoginProps = {
