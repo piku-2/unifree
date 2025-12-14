@@ -14,37 +14,31 @@ export function Header({ title, onNavigate, showBack }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* 左側 */}
         <div className="flex items-center gap-2">
           {showBack && onNavigate && (
             <button
               type="button"
               onClick={() => onNavigate("home")}
-              className="text-sm text-primary"
+              className="flex items-center justify-center w-9 h-9 rounded hover:bg-muted transition"
+              aria-label="戻る"
             >
               ←
             </button>
           )}
+
           <h1 className="text-lg font-bold text-primary">{title}</h1>
         </div>
 
         {/* 右側 */}
         <div className="flex items-center gap-3">
-          {/* ❌ 出品するボタンは MVP 未完成のため非表示 */}
-          {/* {user && (
-            <button
-              onClick={() => onNavigate?.('sell')}
-              className="px-4 py-1 text-sm border border-accent text-accent rounded hover:bg-accent hover:text-white"
-            >
-              出品する
-            </button>
-          )} */}
+          {/* 出品ボタンは MVP 未完成のため非表示 */}
 
-          {/* プロフィールアイコン（表示のみ・クリック無効） */}
+          {/* プロフィールアイコン（表示のみ） */}
           {user && (
             <div
-              className="w-8 h-8 rounded-full bg-muted overflow-hidden"
+              className="w-9 h-9 rounded-full bg-muted overflow-hidden"
               title="プロフィール（MVPでは操作不可）"
             >
               {user.user_metadata?.avatar_url ? (
