@@ -52,3 +52,44 @@
 - UI/UX 指針（Violet トーン + shadcn/ui）
   - 作業: カラーパレットと主要 UI を仕様トーンに合わせ、ボタン/カード/入力を shadcn/ui コンポーネントへ置き換える。
   - 目安の実装場所: `app/**` の画面コンポーネントや `components/**` の共通 UI。
+
+## Google OAuth Login
+
+あなたはこのリポジトリの実装を理解している開発自動化エージェントです。
+
+【目的】
+Supabase Google OAuth が「アプリ側でログイン済みとして認識されているか」を確認するため、
+一時的なデバッグログを追加してください。
+
+【やること（必須）】
+
+- items を取得している処理（items API / hook / fetch ロジック）の直前で、
+  supabase.auth.getSession() を呼び、
+  console.log で session の有無を出力する。
+- 出力形式は以下に完全一致させること：
+
+  console.log('SESSION_CHECK:', session);
+
+【制約】
+
+- 既存のロジック・UI・挙動を変更しないこと
+- デバッグ用ログのみ追加すること
+- 新しいファイルは作らない
+- supabase client は既存の import を使うこと
+- 永続的な修正は行わない（確認用の一時コード）
+
+【ヒント】
+
+- items 一覧取得で 400 が出ているため、
+  その fetch / select / query の直前が最適な挿入位置
+- session が null か object かで、次の修正方針が決まる
+
+【完了条件】
+
+- ブラウザの Console に
+  SESSION_CHECK: null
+  または
+  SESSION_CHECK: { ... }
+  が表示される状態にする
+
+diff が High にならないよう、最小変更で対応してください。
