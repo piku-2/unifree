@@ -7,6 +7,12 @@ const PROTECTED_PATHS = ["/sell", "/mypage", "/admin", "/chat"];
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+
+  // ★★★ 超重要：auth/callback は何もせず通す ★★★
+  if (pathname.startsWith("/auth/callback")) {
+    return NextResponse.next();
+  }
+
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path));
 
   if (!isProtected) {
@@ -32,9 +38,11 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  const { data, error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (error || !data.user) {
+  if (!user) {
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("redirectedFrom", pathname);
