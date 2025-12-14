@@ -8,25 +8,17 @@ const PROTECTED_PATHS = ["/sell", "/mypage", "/admin", "/chat"];
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  /**
-   * ✅ 認証コールバックは完全素通し（PKCE 保護）
-   */
+  // ✅ auth callback は完全スルー
   if (pathname.startsWith("/auth/callback")) {
     return NextResponse.next();
   }
 
-  /**
-   * 認証不要パスは素通し
-   */
-  const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path));
+  const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
 
   if (!isProtected) {
     return NextResponse.next();
   }
 
-  /**
-   * Supabase Server Client（Cookie 連携）
-   */
   const response = NextResponse.next();
 
   const supabase = createServerClient<Database>(
@@ -46,28 +38,19 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  /**
-   * 認証チェック
-   */
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  // ⚠️ callback直後は一瞬 user が null になることがある
+  const { data, error } = await supabase.auth.getSession();
 
-  if (error || !user) {
+  if (error || !data.session) {
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("redirectedFrom", pathname);
-
     return NextResponse.redirect(loginUrl);
   }
 
   return response;
 }
 
-/**
- * ✅ matcher レベルでも auth/callback を完全除外
- */
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|auth/callback).*)"],
+  matcher: ["/((?!_next|favicon.ico).*)"],
 };
