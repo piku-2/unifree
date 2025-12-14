@@ -1,13 +1,18 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { Database } from './supabase/types';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { Database } from "./supabase/types";
 
-const PROTECTED_PATHS = ['/sell', '/mypage', '/admin', '/chat'];
+const PROTECTED_PATHS = ["/sell", "/mypage", "/admin", "/chat"];
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path));
+
+  // auth/callback は絶対に素通し
+  if (pathname.startsWith("/auth/callback")) {
+    return NextResponse.next();
+  }
 
   if (!isProtected) {
     return NextResponse.next();
@@ -21,7 +26,7 @@ export async function middleware(req: NextRequest) {
     {
       cookies: {
         getAll() {
-          return req.cookies.getAll().map(({ name, value }) => ({ name, value }));
+          return req.cookies.getAll();
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
@@ -29,33 +34,24 @@ export async function middleware(req: NextRequest) {
           });
         },
       },
-      cookieOptions: {
-        name: 'sb-access-token',
-      },
-    },
+    }
   );
 
+  // ❌ getUser() は使わない
   const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user || error) {
+  if (!session) {
     const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = '/login';
-    loginUrl.searchParams.set('redirectedFrom', pathname);
-
-    const redirectResponse = NextResponse.redirect(loginUrl);
-    response.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie);
-    });
-
-    return redirectResponse;
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("redirectedFrom", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ['/((?!_next|favicon.ico).*)'],
+  matcher: ["/((?!_next|favicon.ico).*)"],
 };
