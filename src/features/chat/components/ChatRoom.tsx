@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Header } from '@/components/Header';
+import Header from '@/components/Header';
 import { useChat } from '../hooks/useChat';
 import { useAuth } from '@/features/user/hooks/useAuth';
 import { NavigateHandler } from '@/config/navigation';

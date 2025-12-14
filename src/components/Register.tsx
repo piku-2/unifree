@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Header } from "./Header";
+import Header from "./Header";
 
 type RegisterProps = {
   onNavigate: (page: string) => void;

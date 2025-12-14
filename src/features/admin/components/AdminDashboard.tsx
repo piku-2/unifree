@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Header } from "@/components/Header";
+import Header from "@/components/Header";
 import { useAuth } from "@/features/user/hooks/useAuth";
 import { getItems } from "@/features/items/api/getItems";
 import { deleteItem } from "@/features/items/api/deleteItem";

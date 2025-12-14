@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/features/user/hooks/useAuth";
 import { useItemForm } from "@/features/items/hooks/useItemForm";
-import { Header } from "@/components/Header";
+import Header from "@/components/Header";
 import { NavigateHandler } from "@/config/navigation";
 
 type ItemFormProps = {

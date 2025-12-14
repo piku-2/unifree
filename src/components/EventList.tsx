@@ -1,4 +1,4 @@
-import { Header } from "./Header";
+import Header from "./Header";
 
 type EventListProps = {
   onNavigate: (page: string) => void;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Header } from "@/components/Header";
+import Header from "@/components/Header";
 import { useAuth } from "@/features/user/hooks/useAuth";
 import { ItemWithUser } from "@/features/items/types";
 import { NavigateHandler } from "@/config/navigation";
