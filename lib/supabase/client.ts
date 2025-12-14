@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { createBrowserClient } from '@supabase/ssr';
-import { Database } from '../../supabase/types';
+import { createBrowserClient } from "@supabase/ssr";
+import { Database } from "../../supabase/types";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -16,13 +16,10 @@ const supabaseBrowserClient =
   globalForSupabase.__supabaseBrowserClient ??
   createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
-      flowType: 'pkce',
+      flowType: "pkce",
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
-    },
-    cookieOptions: {
-      name: 'sb-access-token',
     },
     isSingleton: true,
   });
