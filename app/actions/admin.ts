@@ -2,6 +2,7 @@
 
 import { Database } from "@/supabase/types";
 import { supabaseServerClient } from "@/lib/supabase/server";
+import { handleSupabaseError } from "./error";
 
 type AdminCreateItemInput = {
   title: string;
@@ -51,6 +52,6 @@ export async function adminCreateItem(input: AdminCreateItemInput) {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) handleSupabaseError(error);
   return data;
 }

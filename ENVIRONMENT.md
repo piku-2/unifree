@@ -1,52 +1,44 @@
 # ENVIRONMENT
 
-## Required Versions
+## 実行環境
 
-- Node: 18+
-- npm: 9+
-- Vite: latest
-- TypeScript: latest
+- Node.js（LTS）
+- npm
 
----
-
-## Environment Variables (.env)
-
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY= # サーバー処理でのみ使用。フロントでは使わない。
-
-※ Codex は値を絶対に生成しない
+※ Vite は使用しない
 
 ---
 
-## Local Setup
+## フレームワーク / ライブラリ
 
+- Next.js（App Router）
+- React
+- TypeScript
+- Supabase
+
+---
+
+## 環境変数
+
+- 環境変数は `.env*` ファイルで管理する
+- 本リポジトリおよび AI は **値を生成・推測・出力してはならない**
+
+---
+
+## Supabase
+
+- 認証：Supabase Auth
+- DB：PostgreSQL
+- Storage：Supabase Storage
+
+※ RLS は **未実装または部分実装の可能性あり**
+※ 実装状況は `IMPLEMENTATION_SUMMARY.md` を正とする
+
+---
+
+## ローカル開発
+
+```bash
 npm install
 npm run dev
-
----
-
-## Build
-
-## npm run build
-
-## Supabase Setup
-
-- Auth → Email enabled
-- Storage → public バケット `items`
-- Tables → items / messages / rooms を作成
-- RLS → Authenticated のみ読み書き可
-
-### Auth Redirect 設定（必須）
-
-- Site URL: `http://localhost:3000`
-- Redirect URLs: `http://localhost:3000/auth/callback`
-- 末尾のスラッシュは付けないこと
-
----
-
-## Directory Safety
-
-- `src/components/figma` は読み取り専用
-- `src/styles` は生成物
-- `node_modules` は絶対に編集禁止
+```

@@ -3,11 +3,11 @@ import Link from "next/link";
 import { supabaseServerClient } from "../../../lib/supabase/server";
 
 type AdminOrderRoom = {
-  id: number;
-  item_id: number;
+  id: string;
+  item_id: string;
   buyer_id: string;
   seller_id: string;
-  created_at: string;
+  created_at: string | null;
 };
 
 export default async function AdminOrdersPage() {
