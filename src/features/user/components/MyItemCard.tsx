@@ -1,63 +1,80 @@
-import { Item } from '@/features/items/types';
+import { ItemWithUser } from "@/features/items/types";
 
 type MyItemCardProps = {
-  item: Item;
-  onClick: () => void;
+  item: ItemWithUser;
+  onClick?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
 };
 
-export function MyItemCard({ item, onClick, onEdit, onDelete }: MyItemCardProps) {
-  const isSelling = item.status === 'on_sale' || item.status === 'selling';
-  const isReserved = item.status === 'reserved' || item.status === 'trading';
-  const isSold = item.status === 'sold' || item.status === 'sold_out';
-
-  const statusLabel = isSelling ? '出品中' : isReserved ? '取引中' : isSold ? '売却済' : item.status;
-  const statusClass = isSelling
-    ? 'bg-info/20 border-info text-primary'
-    : 'bg-muted border-border text-secondary';
+export function MyItemCard({
+  item,
+  onClick,
+  onEdit,
+  onDelete,
+}: MyItemCardProps) {
+  const isSelling = item.status === "selling";
+  const isReserved = item.status === "reserved";
+  const isSold = item.status === "sold";
 
   return (
-    <div className="w-full border border-border bg-card hover:shadow-md transition-all text-left rounded-lg overflow-hidden flex">
-       {/* Main Click Area */}
-      <button onClick={onClick} className="flex-1 flex gap-4 p-4 text-left">
-        <div className="w-24 h-24 border border-border bg-muted flex-shrink-0 rounded flex items-center justify-center overflow-hidden">
-          {item.images && item.images.length > 0 ? (
-             <img src={item.images[0]} alt={item.title} className="w-full h-full object-cover" />
-          ) : (
-             <div className="w-12 h-12 border-2 border-primary/30 rounded"></div>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs px-2 py-1 border border-border rounded bg-muted text-secondary truncate max-w-[100px]">{item.category}</span>
-            <span className={`text-xs px-2 py-1 border rounded ${statusClass}`}>
-              {statusLabel}
-            </span>
-          </div>
-          <h4 className="mb-2 text-foreground truncate">{item.title}</h4>
-          <p className="text-xl mb-2 text-accent">\{item.price.toLocaleString()}</p>
-        </div>
-      </button>
+    <div
+      className="border border-border bg-card rounded-lg p-4 space-y-3 hover:shadow-sm transition"
+      onClick={onClick}
+    >
+      <div className="flex justify-between items-center">
+        <h4 className="font-medium text-foreground line-clamp-1">
+          {item.title}
+        </h4>
 
-      {/* Actions */}
-      <div className="flex flex-col border-l border-border">
-          {onEdit && (
+        {isSelling && (
+          <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
+            出品中
+          </span>
+        )}
+        {isReserved && (
+          <span className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-700">
+            取引中
+          </span>
+        )}
+        {isSold && (
+          <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-600">
+            売却済み
+          </span>
+        )}
+      </div>
+
+      <p className="text-sm text-secondary line-clamp-2">{item.description}</p>
+
+      <div className="flex justify-between items-center">
+        <span className="text-accent font-bold">
+          ¥{item.price.toLocaleString()}
+        </span>
+
+        <div className="flex gap-2">
+          {isSelling && onEdit && (
             <button
-                onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                className="flex-1 px-4 hover:bg-muted text-primary text-sm transition-colors border-b border-border"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="text-xs text-primary hover:underline"
             >
-                編集
+              編集
             </button>
           )}
           {onDelete && (
             <button
-                onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                className="flex-1 px-4 hover:bg-destructive/10 text-destructive text-sm transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="text-xs text-destructive hover:underline"
             >
-                削除
+              削除
             </button>
           )}
+        </div>
       </div>
     </div>
   );
