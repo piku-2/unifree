@@ -1,62 +1,49 @@
+"use client";
+
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { itemSchema, ItemInput } from "../schema";
-import { uploadImage } from "../api/uploadImage";
+import { useRouter } from "next/navigation";
 import { createItem } from "../api/createItem";
 import { useAuth } from "@/features/user/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/config/routes";
+import { CreateItemInput } from "../types";
 
 export function useItemForm() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const [images, setImages] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
-  const form = useForm<ItemInput>({
-    resolver: zodResolver(itemSchema) as any,
-    defaultValues: {
-      status: "on_sale",
-      images: [],
-      title: "",
-      description: "",
-      price: 0,
-      category: "",
-    },
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const saveItem = async (data: ItemInput) => {
+  const submit = async (formData: FormData) => {
     if (!user) {
-      alert("ログインが必要です");
-      return;
-    }
-    if (images.length === 0) {
-      alert("画像を少なくとも1枚選択してください");
+      setError("ログインが必要です");
       return;
     }
 
-    setIsSubmitting(true);
+    setLoading(true);
+    setError(null);
+
     try {
-      // 1. Upload images
-      const uploadPromises = images.map((file) => uploadImage(file, user.id));
-      const imageUrls = await Promise.all(uploadPromises);
+      // FormData → ドメイン型に変換（責務分離◎）
+      const input: CreateItemInput = {
+        title: String(formData.get("title") ?? ""),
+        description: String(formData.get("description") ?? ""),
+        price: Number(formData.get("price") ?? 0),
+        condition: String(formData.get("condition") ?? ""),
+      };
 
-      // 2. Create item（user_id は渡さない）
-      await createItem({
-        ...data,
-        images: imageUrls,
-      });
-
-      alert("出品しました！");
-      navigate(ROUTES.HOME);
-    } catch (error: any) {
-      console.error("Submission error:", error);
-      alert("エラーが発生しました: " + (error.message || "不明なエラー"));
+      await createItem(input);
+      router.push(ROUTES.MYPAGE);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "出品に失敗しました");
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
-  return { form, images, setImages, saveItem, isSubmitting };
+  return {
+    submit,
+    loading,
+    error,
+  };
 }

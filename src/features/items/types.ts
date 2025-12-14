@@ -1,37 +1,41 @@
-export type ItemStatus =
-  | 'on_sale'
-  | 'sold_out'
-  | 'trading'
-  | 'selling'
-  | 'reserved'
-  | 'sold'
-  | string;
+// src/features/items/types.ts
+
+export type ItemStatus = "selling" | "reserved" | "sold";
 
 export type Item = {
   id: string;
-  user_id?: string | null;
-  owner_id?: string | null;
   title: string;
-  description: string;
+  description?: string | null;
   price: number;
-  images?: string[] | null;
+
+  /** カテゴリ（Home.tsx で使用） */
+  category?: string | null;
+
+  /** 代表画像（Home / ItemCard で使用） */
   image_url?: string | null;
-  category: string;
-  condition?: string;
+
+  /** 管理・表示に必要 */
   status: ItemStatus;
+
+  /** 所有者 */
+  owner_id: string;
+
   created_at: string;
-  updated_at: string;
 };
 
-export type ItemUserProfile = {
-  id?: string;
-  username?: string | null;
-  name?: string | null;
-  avatar_url?: string | null;
-  department?: string | null;
-};
-
-// Optional: View type including user info if joined
 export type ItemWithUser = Item & {
-  user?: ItemUserProfile;
+  user?: {
+    id: string;
+    name?: string;
+    username?: string | null;
+    avatar_url?: string | null;
+  };
+};
+
+export type CreateItemInput = {
+  title: string;
+  description?: string;
+  price: number;
+  category?: string;
+  condition?: string;
 };
