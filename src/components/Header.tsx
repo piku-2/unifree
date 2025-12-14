@@ -4,67 +4,61 @@ import { NavigateHandler } from "@/config/navigation";
 import { useAuth } from "@/features/user/hooks/useAuth";
 
 type HeaderProps = {
-  title: string;
-  onNavigate: NavigateHandler;
+  title?: string;
+  onNavigate?: NavigateHandler;
   showBack?: boolean;
 };
 
-export function Header({ title, onNavigate, showBack = false }: HeaderProps) {
-  const { user, hydrated } = useAuth();
+export function Header({ title, onNavigate, showBack }: HeaderProps) {
+  const { user } = useAuth();
 
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-10 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {showBack && (
+    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
+      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+        {/* 左側 */}
+        <div className="flex items-center gap-2">
+          {showBack && onNavigate && (
             <button
+              type="button"
               onClick={() => onNavigate("home")}
-              className="w-8 h-8 border-2 border-primary text-primary flex items-center justify-center rounded hover:bg-primary hover:text-white transition-colors"
+              className="text-sm text-primary"
             >
-              &lt;
+              ←
             </button>
           )}
-          <h1 className="text-xl text-primary">{title}</h1>
+          <h1 className="text-lg font-bold text-primary">{title}</h1>
         </div>
 
-        <div className="flex items-center gap-4">
-          {!hydrated ? (
-            <div className="w-28 h-10" aria-hidden />
-          ) : (
-            <>
-              {user && (
-                <button
-                  onClick={() => onNavigate("sell")}
-                  className="px-4 py-2 border-2 border-accent bg-accent text-white rounded hover:bg-[#FF7F50] transition-colors"
-                >
-                  出品する
-                </button>
-              )}
+        {/* 右側 */}
+        <div className="flex items-center gap-3">
+          {/* ❌ 出品するボタンは MVP 未完成のため非表示 */}
+          {/* {user && (
+            <button
+              onClick={() => onNavigate?.('sell')}
+              className="px-4 py-1 text-sm border border-accent text-accent rounded hover:bg-accent hover:text-white"
+            >
+              出品する
+            </button>
+          )} */}
 
-              {user ? (
-                <button
-                  onClick={() => onNavigate("mypage")}
-                  className="w-10 h-10 border-2 border-border rounded-full bg-muted flex items-center justify-center overflow-hidden hover:border-primary transition-colors hover:shadow-md"
-                >
-                  {user.user_metadata?.avatar_url ? (
-                    <img
-                      src={user.user_metadata.avatar_url}
-                      alt="User"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-sm text-secondary">My</span>
-                  )}
-                </button>
+          {/* プロフィールアイコン（表示のみ・クリック無効） */}
+          {user && (
+            <div
+              className="w-8 h-8 rounded-full bg-muted overflow-hidden"
+              title="プロフィール（MVPでは操作不可）"
+            >
+              {user.user_metadata?.avatar_url ? (
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <button
-                  onClick={() => onNavigate("login")}
-                  className="px-4 py-2 border-2 border-primary text-primary rounded hover:bg-primary hover:text-white transition-colors"
-                >
-                  ログイン
-                </button>
+                <div className="w-full h-full flex items-center justify-center text-xs text-secondary">
+                  U
+                </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
