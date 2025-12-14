@@ -1,12 +1,13 @@
 "use server";
 
 import { supabaseServerClient } from "@/lib/supabase/server";
+import { handleSupabaseError } from "./error";
 
 /**
  * items テーブル（最小取得）
  */
 type ItemRow = {
-  id: number;
+  id: string;
   owner_id: string;
 };
 
@@ -14,7 +15,7 @@ type ItemRow = {
  * chat_rooms 取得用
  */
 type ChatRoomRow = {
-  id: number;
+  id: string;
   buyer_id: string;
   seller_id: string;
 };
@@ -23,7 +24,7 @@ type ChatRoomRow = {
  * chat_rooms insert 用
  */
 type ChatRoomInsert = {
-  item_id: number;
+  item_id: string;
   buyer_id: string;
   seller_id: string;
 };
@@ -32,7 +33,7 @@ type ChatRoomInsert = {
  * messages insert 用
  */
 type MessageInsert = {
-  room_id: number;
+  room_id: string;
   sender_id: string;
   content: string;
 };
@@ -52,14 +53,16 @@ export async function startChat(itemId: number | string) {
   if (userError) throw userError;
   if (!user) throw new Error("認証が必要です。");
 
+  const itemIdValue = String(itemId);
+
   // 商品取得
   const { data: item, error: itemError } = await supabase
     .from("items")
     .select("id, owner_id")
-    .eq("id", itemId)
+    .eq("id", itemIdValue)
     .single<ItemRow>();
 
-  if (itemError) throw itemError;
+  if (itemError) handleSupabaseError(itemError);
   if (!item) throw new Error("商品が見つかりません。");
 
   const buyerId = user.id;
@@ -76,7 +79,7 @@ export async function startChat(itemId: number | string) {
     .eq("item_id", item.id)
     .eq("buyer_id", buyerId)
     .eq("seller_id", sellerId)
-    .maybeSingle<{ id: number }>();
+    .maybeSingle<{ id: string }>();
 
   if (existing?.id) {
     return existing.id;
@@ -93,9 +96,9 @@ export async function startChat(itemId: number | string) {
     .from("chat_rooms")
     .insert([payload] as any)
     .select("id")
-    .single<{ id: number }>();
+    .single<{ id: string }>();
 
-  if (createError) throw createError;
+  if (createError) handleSupabaseError(createError);
   if (!created) throw new Error("チャット作成に失敗しました。");
 
   return created.id;
@@ -116,14 +119,16 @@ export async function sendMessage(roomId: number | string, content: string) {
   if (userError) throw userError;
   if (!user) throw new Error("認証が必要です。");
 
+  const roomIdValue = String(roomId);
+
   // チャットルーム取得
   const { data: room, error: roomError } = await supabase
     .from("chat_rooms")
     .select("id, buyer_id, seller_id")
-    .eq("id", roomId)
+    .eq("id", roomIdValue)
     .single<ChatRoomRow>();
 
-  if (roomError) throw roomError;
+  if (roomError) handleSupabaseError(roomError);
   if (!room) throw new Error("チャットルームが見つかりません。");
 
   // 当事者チェック
@@ -142,5 +147,5 @@ export async function sendMessage(roomId: number | string, content: string) {
     .from("messages")
     .insert([messagePayload] as any);
 
-  if (error) throw error;
+  if (error) handleSupabaseError(error);
 }

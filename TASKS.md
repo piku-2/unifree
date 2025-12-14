@@ -1,23 +1,54 @@
 # TASKS
 
-## Backlog
+## ✅ Implemented (Spec Matched)
 
-- [DB/RLS] 仕様通りの RLS を適用・確認する（items: owner_id=auth.uid() で CRUD、chat_rooms/messages: 当事者のみ、admin_events: app_metadata.role='admin'）。
-- [Storage] Supabase Storage の `items`（および avatars）バケットを公開読み取り＋認証アップロードで設定し、ポリシーを確認する。
-- [Cleanup] 仕様外フィールド (`user_id`, `images`, `condition`, `updated_at` など) や Likes 機能の扱いを整理し、必要なら削除・非表示にする。
-- [UX/Stability] Dev コンソールで `Extra attributes from the server: data-redeviation-bs-uid` 警告。ブラウザ拡張が `<html>` に `data-*` を付与している可能性を無効化/シークレットで再現確認し、必要なら `<html suppressHydrationWarning>` で抑止する。
+- 商品一覧（カード＋カテゴリ絞り込み）
+  - 根拠: `app/page.tsx` → `components/Home` → `useItems` → `getItems` が Supabase `items` を取得し、カテゴリ選択で絞り込み。
+- 購入申請（チャット開始）
+  - 根拠: `app/items/[id]/page.tsx` が `startChat` server action を呼び出し、`chat_rooms` を作成/再利用して `/chat/[roomId]` へリダイレクト。
+- チャット画面・送信
+  - 根拠: `app/chat/[roomId]/page.tsx` が当事者チェック後に `messages` を表示し、`sendMessage` server action で送信・再検証。`app/chat/page.tsx` で一覧取得。
+- ログイン（Supabase メール OTP）
+  - 根拠: `components/Login.tsx` で `supabase.auth.signInWithOtp` を実行し、`app/auth/callback/AuthCallbackClient.tsx` で `exchangeCodeForSession` を処理。
+- Server Actions API 定義
+  - 根拠: `app/actions/items.ts`（createItem/getItems/getItem）、`app/actions/chat.ts`（startChat/sendMessage）、`app/actions/admin.ts`（adminCreateItem）が仕様の関数名で存在。
+- Next.js App Router ルート骨子
+  - 根拠: `app/` 配下に `/`、`/items/[id]`、`/sell`、`/mypage`、`/chat/[roomId]`、`/admin`、`/admin/items`、`/admin/orders` ページが実装済み。
+- RLS ポリシー（items/chat_rooms/messages/admin_events）
+  - 根拠: `supabase/rls_policies.sql` で所有者・当事者・管理者の RLS を定義し、`app/actions/error.ts` と各 Server Action で権限エラーをハンドリング。
+  - 注意: 実運用では本 SQL を Supabase プロジェクトへ apply 済みであることが前提。
+- Supabase スキーマ整合性
+  - 根拠: `supabase/types.ts` と `src/libs/supabase/types.ts` を実際の利用カラム（string bigint id、owner_id/user_id、images/image_url、status(selling/reserved/sold)、chat_rooms/messages の updated_at/is_read、likes）に統一。
+- 出品フォーム（画像 1 枚必須・仕様統一）
+  - 根拠: `/sell` server フォームと `createItem` server action が title/description/price/category と画像 1 枚の必須入力に統一され、SPA `SellPage` は新規登録経路から外れて `/sell` への誘導のみを行う。
+- 商品詳細（出品者情報表示）
+  - 根拠: `/items/[id]` server ページが `getItem` で出品者プロフィール（username/avatar）を取得し、ページ内に表示。
 
-## In Progress
+---
 
--
+## 🟡 Partially Implemented (Spec Gap)
 
-## Done
+- マイページ（購入申請一覧）
+  - 現状: `/mypage` は自分の出品とお気に入りのみ表示。
+  - 不足: 自分が購入申請した/参加中のチャット（chat_rooms）一覧を表示する。
+  - 根拠: `components/MyPage.tsx`（`useMyItems`, `getLikedItems` のみ使用）。
+- 管理者ダッシュボード（イベント設定）
+  - 現状: `/admin` はリンクのみで `admin_events` 未使用。
+  - 不足: イベント名/日付の作成・更新 UI と `admin_events` CRUD を実装。
+  - 根拠: `app/admin/page.tsx`, `supabase/types.ts`.
+- 管理者による出品登録
+  - 現状: `/admin/items` は単品 `items` 挿入のみでイベント紐づけ・一括登録なし。
+  - 不足: イベント選択/紐づけ（最低でも単品登録時にイベント ID 保持）と登録 UI の整備。
+  - 根拠: `app/admin/items/page.tsx`, `app/actions/admin.ts`.
+- オーダー管理
+  - 現状: `/admin/orders` は `chat_rooms` の羅列のみでステータス管理や承認操作なし。
+  - 不足: 申請ステータスの表示/更新・フィルタリングを追加する。
+  - 根拠: `app/admin/orders/page.tsx`.
 
-- [Auth/UX] Supabase メールログインを PKCE + cookie フローに統一し、ホーム/一覧からダミーデータと `/items` 依存を排除して 404 を防止。
-- [Auth] Supabase Magic Link を NEXT_PUBLIC_SITE_URL ベースのリダイレクトに統一し、/auth/callback で PKCE セッションを確立して `/` に戻るよう修正。
+---
 
-## Notes
+## ❌ Not Implemented (To Do)
 
-- [DB] legacy カラム/型の移行方針（削除かマイグレーションか）を決める必要あり。
-- [Feature] Likes/気になる機能は仕様外。残すか外すか要判断。
-- [Env] 現状 Vite/React Router 実装のため、Next.js 移行手順とスコープを擦り合わせてから着手する。
+- UI/UX 指針（Violet トーン + shadcn/ui）
+  - 作業: カラーパレットと主要 UI を仕様トーンに合わせ、ボタン/カード/入力を shadcn/ui コンポーネントへ置き換える。
+  - 目安の実装場所: `app/**` の画面コンポーネントや `components/**` の共通 UI。

@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { supabaseServerClient } from "@/lib/supabase/server";
 
 type ChatRoomListItem = {
-  id: number;
-  item_id: number;
+  id: string;
+  item_id: string;
 };
 
 export default async function ChatListPage() {

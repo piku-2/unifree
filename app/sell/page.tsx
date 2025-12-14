@@ -39,8 +39,8 @@ export default async function SellPage() {
           <input name="category" required className="w-full border rounded p-2 mt-1" />
         </label>
         <label className="block text-sm">
-          画像
-          <input name="image" type="file" accept="image/*" className="mt-1" />
+          画像（1枚必須）
+          <input name="image" type="file" accept="image/*" required className="mt-1" />
         </label>
         <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white">
           出品する

@@ -5,12 +5,14 @@ import { getItem } from '../../actions/items';
 import { supabaseServerClient } from '../../../lib/supabase/server';
 
 export default async function ItemDetailPage({ params }: { params: { id: string } }) {
-  const itemId = Number(params.id);
+  const itemId = params.id;
   const item = await getItem(itemId);
   if (!item) {
     notFound();
   }
   const safeItem = item as NonNullable<typeof item>;
+  const seller = safeItem.owner;
+  const sellerInitial = seller?.username?.[0]?.toUpperCase() ?? '?';
 
   const supabase = supabaseServerClient();
   const {
@@ -31,6 +33,26 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
       <p className="text-xl text-blue-600">\{safeItem.price.toLocaleString()}</p>
       <p>{safeItem.description}</p>
       {safeItem.image_url && <img src={safeItem.image_url} alt={safeItem.title} className="max-w-md" />}
+
+      <section className="p-4 border rounded space-y-2">
+        <h2 className="text-lg font-semibold">出品者</h2>
+        <div className="flex items-center gap-3">
+          {seller?.avatar_url ? (
+            <img
+              src={seller.avatar_url}
+              alt={seller.username ?? '出品者'}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+              {sellerInitial}
+            </div>
+          )}
+          <div>
+            <p className="font-medium">{seller?.username ?? '出品者情報が取得できません'}</p>
+          </div>
+        </div>
+      </section>
 
       <form action={handleStartChat} className="space-y-2">
         <button

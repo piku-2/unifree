@@ -5,15 +5,15 @@ import { sendMessage } from "../../actions/chat";
 
 /** chat_rooms（権限チェック用） */
 type ChatRoom = {
-  id: number;
+  id: string;
   buyer_id: string;
   seller_id: string;
 };
 
 /** messages 表示用 */
 type Message = {
-  id: number;
-  room_id: number;
+  id: string;
+  room_id: string;
   sender_id: string;
   content: string;
   created_at: string;
@@ -25,7 +25,7 @@ export default async function ChatRoomPage({
   params: { roomId: string };
 }) {
   const supabase = supabaseServerClient();
-  const roomId = Number(params.roomId);
+  const roomId = params.roomId;
 
   // 認証確認
   const {
