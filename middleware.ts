@@ -1,25 +1,34 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { Database } from "./supabase/types";
+import { Database } from "@/supabase/types";
 
 const PROTECTED_PATHS = ["/sell", "/mypage", "/admin", "/chat"];
 
 export async function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
+  const { pathname } = req.nextUrl;
 
-  // ★★★ 超重要：auth/callback は何もせず通す ★★★
+  /**
+   * ✅ 認証コールバックは必ず素通し
+   * ここで止めると PKCE が確立する前に /login へ飛ばされて詰む
+   */
   if (pathname.startsWith("/auth/callback")) {
     return NextResponse.next();
   }
 
+  /**
+   * 認証が不要なパスも素通し
+   */
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path));
 
   if (!isProtected) {
     return NextResponse.next();
   }
 
-  const res = NextResponse.next();
+  /**
+   * Supabase Server Client（Cookie 連携）
+   */
+  const response = NextResponse.next();
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,27 +40,36 @@ export async function middleware(req: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            res.cookies.set(name, value, options);
+            response.cookies.set(name, value, options);
           });
         },
       },
     }
   );
 
+  /**
+   * 認証チェック
+   */
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (error || !user) {
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("redirectedFrom", pathname);
+
     return NextResponse.redirect(loginUrl);
   }
 
-  return res;
+  return response;
 }
 
+/**
+ * matcher は基本これでOK
+ * _next / favicon は除外
+ */
 export const config = {
   matcher: ["/((?!_next|favicon.ico).*)"],
 };
