@@ -9,15 +9,14 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   /**
-   * ✅ 認証コールバックは必ず素通し
-   * ここで止めると PKCE が確立する前に /login へ飛ばされて詰む
+   * ✅ 認証コールバックは完全素通し（PKCE 保護）
    */
   if (pathname.startsWith("/auth/callback")) {
     return NextResponse.next();
   }
 
   /**
-   * 認証が不要なパスも素通し
+   * 認証不要パスは素通し
    */
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path));
 
@@ -67,9 +66,8 @@ export async function middleware(req: NextRequest) {
 }
 
 /**
- * matcher は基本これでOK
- * _next / favicon は除外
+ * ✅ matcher レベルでも auth/callback を完全除外
  */
 export const config = {
-  matcher: ["/((?!_next|favicon.ico).*)"],
+  matcher: ["/((?!_next|favicon.ico|auth/callback).*)"],
 };
