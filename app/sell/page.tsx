@@ -1,82 +1,27 @@
 import { redirect } from "next/navigation";
 import { createItem } from "../actions/items";
+import { supabaseServerClient } from "../../lib/supabase/server";
+import { SellForm } from "@/components/SellForm";
 
-export default function SellPage() {
+export default async function SellPage() {
+  const supabase = supabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   async function handleCreate(formData: FormData) {
     "use server";
-
-    // ⚠️ ログインチェックは createItem 内で行う（MVP方針）
     await createItem(formData);
-
-    // 出品完了後はトップへ
     redirect("/");
   }
 
   return (
-    <main className="p-6 space-y-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold">出品する</h1>
-
-      <form
-        action={handleCreate}
-        className="space-y-4"
-        encType="multipart/form-data"
-      >
-        <label className="block text-sm">
-          タイトル
-          <input
-            name="title"
-            required
-            className="w-full border rounded p-2 mt-1"
-          />
-        </label>
-
-        <label className="block text-sm">
-          説明
-          <textarea
-            name="description"
-            required
-            className="w-full border rounded p-2 mt-1"
-          />
-        </label>
-
-        <label className="block text-sm">
-          価格
-          <input
-            name="price"
-            type="number"
-            min={0}
-            required
-            className="w-full border rounded p-2 mt-1"
-          />
-        </label>
-
-        <label className="block text-sm">
-          カテゴリ
-          <input
-            name="category"
-            required
-            className="w-full border rounded p-2 mt-1"
-          />
-        </label>
-
-        <label className="block text-sm">
-          画像（1枚必須）
-          <input
-            name="image"
-            type="file"
-            accept="image/*"
-            required
-            className="mt-1"
-          />
-        </label>
-
-        <button
-          type="submit"
-          className="px-4 py-2 rounded bg-blue-600 text-white"
-        >
-          出品する
-        </button>
-      </form>
+    <main className="min-h-screen bg-background">
+      <SellForm onSubmit={handleCreate} />
     </main>
   );
 }
