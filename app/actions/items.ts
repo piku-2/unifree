@@ -35,19 +35,20 @@ export async function createItem(formData: FormData) {
   }
 
   const image = formData.get('image');
-  if (!(image instanceof File) || image.size === 0) {
-    throw new Error('商品画像を1枚アップロードしてください。');
-  }
-  if (image.type && !image.type.startsWith('image/')) {
-    throw new Error('画像ファイルを指定してください。');
-  }
+  let imageUrl: string | null = null;
 
-  const ext = image.name.split('.').pop() || 'jpg';
-  const path = `${user.id}/${Date.now()}.${ext}`;
-  const { error: uploadError } = await supabase.storage.from('items').upload(path, image);
-  if (uploadError) handleSupabaseError(uploadError);
-  const { data: publicUrlData } = supabase.storage.from('items').getPublicUrl(path);
-  const imageUrl = publicUrlData.publicUrl;
+  if (image instanceof File && image.size > 0) {
+    if (image.type && !image.type.startsWith('image/')) {
+      throw new Error('画像ファイルを指定してください。');
+    }
+
+    const ext = image.name.split('.').pop() || 'jpg';
+    const path = `${user.id}/${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from('items').upload(path, image);
+    if (uploadError) handleSupabaseError(uploadError);
+    const { data: publicUrlData } = supabase.storage.from('items').getPublicUrl(path);
+    imageUrl = publicUrlData.publicUrl;
+  }
 
   const { data, error } = await supabase
     .from('items')
@@ -61,7 +62,7 @@ export async function createItem(formData: FormData) {
           category,
           status: status ?? 'selling',
           image_url: imageUrl,
-          images: [imageUrl],
+          images: imageUrl ? [imageUrl] : [],
         },
       ] as any,
     )
