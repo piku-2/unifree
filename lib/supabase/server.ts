@@ -17,8 +17,5 @@ export function supabaseServerClient() {
         });
       },
     },
-    cookieOptions: {
-      name: 'sb-access-token',
-    },
   });
 }
