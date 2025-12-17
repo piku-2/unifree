@@ -25,7 +25,11 @@ export async function createItem(formData: FormData) {
     throw new Error("必須項目が不足しています。");
   }
 
-  const files = formData.getAll("images") as File[];
+  // ✅ 空の File（size=0）を除外する
+  const files = (formData.getAll("images") as File[]).filter(
+    (file) => file.size > 0
+  );
+
   if (files.length === 0 || files.length > 3) {
     throw new Error("商品画像は1〜3枚指定してください。");
   }

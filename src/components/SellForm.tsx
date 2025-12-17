@@ -14,32 +14,12 @@ const events = [
 const categories = ["家電", "家具", "本", "生活雑貨", "その他"];
 const conditions = ["新品", "美品", "使用感あり"];
 
-// display:none/hidden ではなく「フォーカス可能な不可視化」
-const visuallyHiddenStyle: React.CSSProperties = {
-  position: "absolute",
-  width: 1,
-  height: 1,
-  padding: 0,
-  margin: -1,
-  overflow: "hidden",
-  clip: "rect(0, 0, 0, 0)",
-  whiteSpace: "nowrap",
-  borderWidth: 0,
-};
-
 export function SellForm({ onSubmit }: SellFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<File[]>([]);
 
   const openPicker = () => {
     fileInputRef.current?.click();
-  };
-
-  const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    const merged = [...images, ...files].slice(0, 3);
-    setImages(merged);
-    e.target.value = "";
   };
 
   return (
@@ -69,52 +49,43 @@ export function SellForm({ onSubmit }: SellFormProps) {
               商品画像（1〜3枚） <span className="text-destructive">*</span>
             </label>
 
-            <div className="grid grid-cols-3 gap-4">
-              {[0, 1, 2].map((i) => (
+            <div className="grid grid-cols-3 gap-4 mb-2">
+              {images.map((file, i) => (
                 <div
                   key={i}
-                  className="relative aspect-square border-2 rounded border-border flex items-center justify-center overflow-hidden"
+                  className="relative aspect-square border-2 rounded border-border overflow-hidden"
                 >
-                  {images[i] ? (
-                    <>
-                      <img
-                        src={URL.createObjectURL(images[i])}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setImages(images.filter((_, index) => index !== i))
-                        }
-                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
-                      >
-                        ×
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={openPicker}
-                      className="w-full h-full flex items-center justify-center"
-                    >
-                      <span className="text-2xl">+</span>
-                    </button>
-                  )}
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               ))}
+
+              {images.length === 0 && (
+                <button
+                  type="button"
+                  onClick={openPicker}
+                  className="aspect-square border-2 border-dashed rounded flex items-center justify-center text-muted-foreground"
+                >
+                  画像を選択
+                </button>
+              )}
             </div>
 
-            {/* hidden input（実体は1つ） */}
             <input
               ref={fileInputRef}
               type="file"
               name="images"
               accept="image/*"
               multiple
+              required
               className="hidden"
-              onChange={onFilesChange}
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []).slice(0, 3);
+                setImages(files);
+              }}
             />
           </div>
 
@@ -127,23 +98,23 @@ export function SellForm({ onSubmit }: SellFormProps) {
           />
 
           {/* Category */}
-          <div className="grid grid-cols-2 gap-2">
-            {categories.map((c) => (
-              <label key={c} className="cursor-pointer">
-                <input
-                  type="radio"
-                  name="category"
-                  value={c}
-                  className="peer"
-                  style={visuallyHiddenStyle}
-                  required
-                />
-                <div className="p-3 border rounded text-center peer-checked:bg-primary peer-checked:text-white">
-                  {c}
-                </div>
-              </label>
-            ))}
-          </div>
+          <fieldset className="space-y-2">
+            <legend className="text-sm">
+              カテゴリ <span className="text-destructive">*</span>
+            </legend>
+
+            <div className="space-y-2">
+              {categories.map((c) => (
+                <label
+                  key={c}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <input type="radio" name="category" value={c} required />
+                  <span>{c}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           {/* Price */}
           <input
@@ -155,23 +126,23 @@ export function SellForm({ onSubmit }: SellFormProps) {
           />
 
           {/* Condition */}
-          <div className="grid grid-cols-3 gap-2">
-            {conditions.map((c) => (
-              <label key={c} className="cursor-pointer">
-                <input
-                  type="radio"
-                  name="condition"
-                  value={c}
-                  className="peer"
-                  style={visuallyHiddenStyle}
-                  required
-                />
-                <div className="p-3 border rounded text-center peer-checked:bg-primary peer-checked:text-white">
-                  {c}
-                </div>
-              </label>
-            ))}
-          </div>
+          <fieldset className="space-y-2">
+            <legend className="text-sm">
+              商品状態 <span className="text-destructive">*</span>
+            </legend>
+
+            <div className="space-y-2">
+              {conditions.map((c) => (
+                <label
+                  key={c}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <input type="radio" name="condition" value={c} required />
+                  <span>{c}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           {/* Description */}
           <textarea
