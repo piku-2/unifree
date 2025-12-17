@@ -29,18 +29,23 @@ export interface Database {
           created_at?: string | null;
         };
       };
+
       items: {
         Row: {
           id: string;
           owner_id: string;
           user_id: string | null;
+
           title: string;
           description: string;
-          price: number;
           category: string;
-          status: 'selling' | 'reserved' | 'sold';
+          condition: string; // ★ ここが今回の本丸
+          price: number;
+
+          status: "selling" | "reserved" | "sold";
           images: string[] | null;
           image_url: string | null;
+
           created_at: string | null;
           updated_at: string | null;
         };
@@ -48,13 +53,17 @@ export interface Database {
           id?: string;
           owner_id: string;
           user_id?: string | null;
+
           title: string;
           description: string;
-          price: number;
           category: string;
-          status?: 'selling' | 'reserved' | 'sold';
+          condition: string;
+          price: number;
+
+          status?: "selling" | "reserved" | "sold";
           images?: string[] | null;
           image_url?: string | null;
+
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -62,17 +71,22 @@ export interface Database {
           id?: string;
           owner_id?: string;
           user_id?: string | null;
+
           title?: string;
           description?: string;
-          price?: number;
           category?: string;
-          status?: 'selling' | 'reserved' | 'sold';
+          condition?: string;
+          price?: number;
+
+          status?: "selling" | "reserved" | "sold";
           images?: string[] | null;
           image_url?: string | null;
+
           created_at?: string | null;
           updated_at?: string | null;
         };
       };
+
       chat_rooms: {
         Row: {
           id: string;
@@ -99,6 +113,7 @@ export interface Database {
           updated_at?: string | null;
         };
       };
+
       messages: {
         Row: {
           id: string;
@@ -125,6 +140,7 @@ export interface Database {
           is_read?: boolean | null;
         };
       };
+
       admin_events: {
         Row: {
           id: string;
@@ -148,6 +164,7 @@ export interface Database {
           created_at?: string | null;
         };
       };
+
       likes: {
         Row: {
           id: string;
@@ -169,6 +186,7 @@ export interface Database {
         };
       };
     };
+
     Views: {
       [_ in never]: never;
     };

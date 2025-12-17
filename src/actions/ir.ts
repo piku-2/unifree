@@ -1,35 +1,20 @@
-"use server";
+// ❌ 削除
+// import { supabaseServerClient } from "@/libs/supabase/server";
 
-import { supabaseServerClient } from "@/lib/supabase/server";
+// ✅ これに変更
+import { supabase } from "@/libs/supabase/client";
+import type { Database } from "@/libs/supabase/types";
 
-export async function getItem(id: string) {
-  const supabase = supabaseServerClient();
+type Item = Database["public"]["Tables"]["items"]["Row"];
 
+export async function getItem(id: string): Promise<Item | null> {
   const { data, error } = await supabase
     .from("items")
-    .select(
-      `
-      id,
-      title,
-      description,
-      category,
-      price,
-      images,
-      user_id,
-      owner:profiles (
-        id,
-        username,
-        avatar_url
-      )
-    `
-    )
+    .select("id,title,description,category,condition,price,images,user_id")
     .eq("id", id)
-    .single<any>();
+    .limit(1)
+    .maybeSingle<Item>();
 
-  if (error) {
-    console.error("getItem error:", error);
-    return null;
-  }
-
+  if (error || !data) return null;
   return data;
 }

@@ -38,7 +38,8 @@ export interface Database {
           description: string;
           price: number;
           category: string;
-          status: 'selling' | 'reserved' | 'sold';
+          condition: string;
+          status: "selling" | "reserved" | "sold";
           images: string[] | null;
           image_url: string | null;
           created_at: string | null;
@@ -52,7 +53,7 @@ export interface Database {
           description: string;
           price: number;
           category: string;
-          status?: 'selling' | 'reserved' | 'sold';
+          status?: "selling" | "reserved" | "sold";
           images?: string[] | null;
           image_url?: string | null;
           created_at?: string | null;
@@ -66,7 +67,7 @@ export interface Database {
           description?: string;
           price?: number;
           category?: string;
-          status?: 'selling' | 'reserved' | 'sold';
+          status?: "selling" | "reserved" | "sold";
           images?: string[] | null;
           image_url?: string | null;
           created_at?: string | null;
