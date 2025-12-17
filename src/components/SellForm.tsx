@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Header from "./Header";
+import React, { useRef, useState } from "react";
 
 type SellFormProps = {
   onSubmit: (formData: FormData) => Promise<void>;
@@ -15,152 +14,182 @@ const events = [
 const categories = ["家電", "家具", "本", "生活雑貨", "その他"];
 const conditions = ["新品", "美品", "使用感あり"];
 
-export function SellForm({ onSubmit }: SellFormProps) {
-  const [formData, setFormData] = useState({
-    event: "",
-    title: "",
-    category: "",
-    price: "",
-    condition: "",
-    description: "",
-    deliveryMethod: "手渡し",
-  });
+// display:none/hidden ではなく「フォーカス可能な不可視化」
+const visuallyHiddenStyle: React.CSSProperties = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap",
+  borderWidth: 0,
+};
 
-  const [uploadedImages, setUploadedImages] = useState<number>(0);
+export function SellForm({ onSubmit }: SellFormProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [images, setImages] = useState<File[]>([]);
+
+  const openPicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    const merged = [...images, ...files].slice(0, 3);
+    setImages(merged);
+    e.target.value = "";
+  };
 
   return (
-    <div className="min-h-screen pb-20 md:pb-8 bg-background">
-      <Header title="出品する" showBack />
+    <main className="max-w-3xl mx-auto px-4 py-6 pt-24">
+      <div className="border border-border bg-card p-6 rounded-lg shadow-sm">
+        <h2 className="text-xl mb-6 text-primary">新規出品</h2>
 
-      <main className="max-w-3xl mx-auto px-4 py-6">
-        <div className="border border-border bg-card p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl mb-6 text-primary">新規出品</h2>
+        <form action={onSubmit} className="space-y-6">
+          {/* Event */}
+          <div>
+            <label className="block text-sm mb-2">
+              イベント選択 <span className="text-destructive">*</span>
+            </label>
+            <select name="event" required className="w-full p-3 border rounded">
+              <option value="">イベントを選択</option>
+              {events.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          {/* 🔴 Server Action を直接呼ぶ */}
-          <form action={onSubmit} className="space-y-6">
-            {/* Event */}
-            <div>
-              <label className="block text-sm mb-2">
-                イベント選択 <span className="text-destructive">*</span>
-              </label>
-              <select
-                name="event"
-                required
-                value={formData.event}
-                onChange={(e) =>
-                  setFormData({ ...formData, event: e.target.value })
-                }
-                className="w-full p-3 border rounded"
-              >
-                <option value="">イベントを選択</option>
-                {events.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* 商品画像 */}
+          <div>
+            <label className="block text-sm mb-2">
+              商品画像（1〜3枚） <span className="text-destructive">*</span>
+            </label>
 
-            {/* Images (UIのみ / MVP) */}
-            <div>
-              <label className="block text-sm mb-2">
-                商品画像（1〜3枚） <span className="text-destructive">*</span>
-              </label>
-              <div className="grid grid-cols-3 gap-4">
-                {[1, 2, 3].map((i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setUploadedImages(i)}
-                    className={`aspect-square border-2 rounded ${
-                      i <= uploadedImages ? "border-primary" : "border-border"
-                    }`}
-                  >
-                    {i <= uploadedImages ? "✓" : "+"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Title */}
-            <input
-              name="title"
-              required
-              placeholder="タイトル"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              className="w-full p-3 border rounded"
-            />
-
-            {/* Category */}
-            <div className="grid grid-cols-2 gap-2">
-              {categories.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, category: c })}
-                  className={`p-3 border rounded ${
-                    formData.category === c ? "bg-primary text-white" : ""
-                  }`}
+            <div className="grid grid-cols-3 gap-4">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="relative aspect-square border-2 rounded border-border flex items-center justify-center overflow-hidden"
                 >
-                  {c}
-                </button>
+                  {images[i] ? (
+                    <>
+                      <img
+                        src={URL.createObjectURL(images[i])}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setImages(images.filter((_, index) => index !== i))
+                        }
+                        className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                      >
+                        ×
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={openPicker}
+                      className="w-full h-full flex items-center justify-center"
+                    >
+                      <span className="text-2xl">+</span>
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
 
-            {/* Price */}
+            {/* hidden input（実体は1つ） */}
             <input
-              name="price"
-              type="number"
-              required
-              placeholder="価格"
-              value={formData.price}
-              onChange={(e) =>
-                setFormData({ ...formData, price: e.target.value })
-              }
-              className="w-full p-3 border rounded"
+              ref={fileInputRef}
+              type="file"
+              name="images"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={onFilesChange}
             />
+          </div>
 
-            {/* Condition */}
-            <div className="grid grid-cols-3 gap-2">
-              {conditions.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, condition: c })}
-                  className={`p-3 border rounded ${
-                    formData.condition === c ? "bg-primary text-white" : ""
-                  }`}
-                >
+          {/* Title */}
+          <input
+            name="title"
+            required
+            placeholder="タイトル"
+            className="w-full p-3 border rounded"
+          />
+
+          {/* Category */}
+          <div className="grid grid-cols-2 gap-2">
+            {categories.map((c) => (
+              <label key={c} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="category"
+                  value={c}
+                  className="peer"
+                  style={visuallyHiddenStyle}
+                  required
+                />
+                <div className="p-3 border rounded text-center peer-checked:bg-primary peer-checked:text-white">
                   {c}
-                </button>
-              ))}
-            </div>
+                </div>
+              </label>
+            ))}
+          </div>
 
-            {/* Description */}
-            <textarea
-              name="description"
-              required
-              rows={5}
-              placeholder="説明"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="w-full p-3 border rounded"
-            />
+          {/* Price */}
+          <input
+            name="price"
+            type="number"
+            required
+            placeholder="価格"
+            className="w-full p-3 border rounded"
+          />
 
-            <button
-              type="submit"
-              className="w-full py-3 bg-accent text-white rounded"
-            >
-              出品する
-            </button>
-          </form>
-        </div>
-      </main>
-    </div>
+          {/* Condition */}
+          <div className="grid grid-cols-3 gap-2">
+            {conditions.map((c) => (
+              <label key={c} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="condition"
+                  value={c}
+                  className="peer"
+                  style={visuallyHiddenStyle}
+                  required
+                />
+                <div className="p-3 border rounded text-center peer-checked:bg-primary peer-checked:text-white">
+                  {c}
+                </div>
+              </label>
+            ))}
+          </div>
+
+          {/* Description */}
+          <textarea
+            name="description"
+            required
+            rows={5}
+            placeholder="説明"
+            className="w-full p-3 border rounded"
+          />
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-accent text-white rounded"
+          >
+            出品する
+          </button>
+        </form>
+      </div>
+    </main>
   );
 }
