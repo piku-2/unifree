@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { startChat } from '../../actions/chat';
-import { getItem } from '../../actions/items';
+import { startChat } from '@/actions/chat';
+import { getItem } from '@/actions/ir';
 import { supabaseServerClient } from '../../../lib/supabase/server';
 
 export default async function ItemDetailPage({ params }: { params: { id: string } }) {

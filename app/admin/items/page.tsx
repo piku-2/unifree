@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { adminCreateItem } from '../../actions/admin';
+import { adminCreateItem } from '@/actions/admin';
 import { supabaseServerClient } from '../../../lib/supabase/server';
 
 export default async function AdminItemsPage() {
