@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Header from "@/components/Header";
 import { SellForm } from "@/components/SellForm";
-import { createItem } from "../actions/items";
+import { createItem } from "@/actions/ia";
 import { supabaseServerClient } from "../../lib/supabase/server";
 export const runtime = "nodejs";
 

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { supabaseServerClient } from "../../../lib/supabase/server";
-import { sendMessage } from "../../actions/chat";
+import { sendMessage } from "@/actions/chat";
 
 /** chat_rooms（権限チェック用） */
 type ChatRoom = {
