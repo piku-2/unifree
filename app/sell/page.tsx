@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import { SellForm } from "@/components/SellForm";
 import { createItem } from "../actions/items";
 import { supabaseServerClient } from "../../lib/supabase/server";
+export const runtime = "nodejs";
 
 export default async function SellPage() {
   const supabase = supabaseServerClient();
