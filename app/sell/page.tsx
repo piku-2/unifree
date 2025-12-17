@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
+import Header from "@/components/Header";
+import { SellForm } from "@/components/SellForm";
 import { createItem } from "../actions/items";
 import { supabaseServerClient } from "../../lib/supabase/server";
-import { SellForm } from "@/components/SellForm";
 
 export default async function SellPage() {
   const supabase = supabaseServerClient();
@@ -20,8 +21,9 @@ export default async function SellPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <>
+      <Header title="出品する" showBack />
       <SellForm onSubmit={handleCreate} />
-    </main>
+    </>
   );
 }

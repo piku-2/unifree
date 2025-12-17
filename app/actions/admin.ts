@@ -1,8 +1,6 @@
 "use server";
 
-import { Database } from "@/supabase/types";
 import { supabaseServerClient } from "@/lib/supabase/server";
-import { handleSupabaseError } from "./error";
 
 type AdminCreateItemInput = {
   title: string;
@@ -36,22 +34,13 @@ export async function adminCreateItem(input: AdminCreateItemInput) {
     status: input.status ?? "selling",
     image_url: input.image_url ?? null,
   };
-  type ItemInsert = {
-    owner_id: string;
-    title: string;
-    description: string;
-    price: number;
-    category: string;
-    status: "selling" | "reserved" | "sold";
-    image_url: string | null;
-  };
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from("items")
-    .insert(payload)
+    .insert(payload as any)
     .select()
     .single();
 
-  if (error) handleSupabaseError(error);
+  if (error) throw error;
   return data;
 }
