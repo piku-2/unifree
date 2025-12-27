@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Home } from '@/components/Home';
+import { InAppBrowserGate } from '@/components/InAppBrowserGate';
 import { ROUTES } from '@/config/routes';
 import { NavigateHandler } from '@/config/navigation';
 
@@ -69,5 +70,9 @@ export default function HomePage() {
     }
   };
 
-  return <Home onNavigate={handleNavigate} />;
+  return (
+    <InAppBrowserGate>
+      <Home onNavigate={handleNavigate} />
+    </InAppBrowserGate>
+  );
 }

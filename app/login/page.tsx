@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { InAppBrowserGate } from '@/components/InAppBrowserGate';
 import { Login } from '@/components/Login';
 import { ROUTES } from '@/config/routes';
 import { NavigateHandler } from '@/config/navigation';
@@ -69,5 +70,9 @@ export default function LoginPage() {
     }
   };
 
-  return <Login onNavigate={handleNavigate} />;
+  return (
+    <InAppBrowserGate>
+      <Login onNavigate={handleNavigate} />
+    </InAppBrowserGate>
+  );
 }
